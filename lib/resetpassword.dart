@@ -58,55 +58,5 @@ class _ResetPasswordState extends State<ResetPassword> {
     );
   }
 
-  verify() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text(
-            "Verification",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          content: new Text(
-            "Are you sure?",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text(
-                "Yes",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            new FlatButton(
-              child: new Text(
-                "No",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _onReset() {}
 }

@@ -33,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: new Container(
         child: Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
             child: SingleChildScrollView(
                 child: Column(children: [
               Image.asset(

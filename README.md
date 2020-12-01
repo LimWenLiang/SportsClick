@@ -1,4 +1,4 @@
-# sportsclick
+# SportsClick
 
 A new Flutter project.
 

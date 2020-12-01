@@ -130,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           print(res.body);
           if (res.body == "SUCCESS") {
             Toast.show(
-              "Registration Success. An email has been sent to .$_email. Please check your email for OTP verification. Also check in your spam folder.",
+              "Registration Success. An email has been sent to $_email. Please check your email for OTP verification. Also check in your spam folder.",
               context,
               duration: Toast.LENGTH_LONG,
               gravity: Toast.CENTER,

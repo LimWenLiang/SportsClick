@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sportsclick/forgotscreen.dart';
 import 'package:toast/toast.dart';
 import 'package:http/http.dart' as http;
 import 'mainscreen.dart';
 import 'registerscreen.dart';
-import 'resetpassword.dart';
+import 'forgotscreen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -217,6 +218,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _onForgot() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => ResetPassword()));
+        MaterialPageRoute(builder: (BuildContext context) => ForgotScreen()));
   }
 }

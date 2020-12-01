@@ -7,9 +7,8 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: new ThemeData(primarySwatch: Colors.red),
+      theme: new ThemeData(primarySwatch: Colors.deepPurple),
       debugShowCheckedModeBanner: false,
-      title: 'SportsClick',
       home: Scaffold(
         body: Center(
             child: Column(

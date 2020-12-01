@@ -186,8 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
           "password": _password,
         }).then((res) {
       print(res.body);
-      print(_email);
-      print(_password);
       if (res.body == "SUCCESS") {
         Toast.show(
           "Login Success",

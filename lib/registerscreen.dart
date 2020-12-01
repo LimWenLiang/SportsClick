@@ -129,13 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             }).then((res) {
           print(res.body);
           if (res.body == "SUCCESS") {
-            Toast.show(
-              "Registration Success. An email has been sent to $_email. Please check your email for OTP verification. Also check in your spam folder.",
-              context,
-              duration: Toast.LENGTH_LONG,
-              gravity: Toast.CENTER,
-            );
-            _onLogin();
+            _showDialog();
           } else {
             Toast.show(
               "Registration Failed",
@@ -206,5 +200,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$';
     RegExp regExp = new RegExp(pattern);
     return regExp.hasMatch(value);
+  }
+
+  _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(
+            "Registration Success",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          content: new Text(
+            "An email has been sent to $_email. Please check your email for OTP verification. Also check in your spam folder.",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text(
+                "OK",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              onPressed: () {
+                _onLogin();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

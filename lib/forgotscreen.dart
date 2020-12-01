@@ -17,7 +17,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Verification'),
+        title: Text('Forgot Password'),
       ),
       body: new Container(
         child: Padding(

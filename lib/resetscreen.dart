@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'loginscreen.dart';
 
@@ -16,6 +17,7 @@ class _ResetScreenState extends State<ResetScreen> {
   final TextEditingController _ps2controller = TextEditingController();
   String _password = "";
   String _password2 = "";
+  SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +82,8 @@ class _ResetScreenState extends State<ResetScreen> {
               "password": _password,
             }).then((res) {
           print(res.body);
-          setState(() {
-            print(_password);
-          });
-
           if (res.body == "SUCCESS") {
+            savepref();
             Toast.show(
               "Reset Success",
               context,
@@ -123,5 +122,12 @@ class _ResetScreenState extends State<ResetScreen> {
         gravity: Toast.CENTER,
       );
     }
+  }
+
+  Future<void> savepref() async {
+    prefs = await SharedPreferences.getInstance();
+      _password = _pscontroller.text;
+      await prefs.setString('password', _password);
+      await prefs.setBool('rememberme', true);
   }
 }

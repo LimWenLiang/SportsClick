@@ -83,7 +83,6 @@ class _ResetScreenState extends State<ResetScreen> {
             }).then((res) {
           print(res.body);
           if (res.body == "SUCCESS") {
-            savepref();
             Toast.show(
               "Reset Success",
               context,
@@ -122,12 +121,5 @@ class _ResetScreenState extends State<ResetScreen> {
         gravity: Toast.CENTER,
       );
     }
-  }
-
-  Future<void> savepref() async {
-    prefs = await SharedPreferences.getInstance();
-      _password = _pscontroller.text;
-      await prefs.setString('password', _password);
-      await prefs.setBool('rememberme', true);
   }
 }

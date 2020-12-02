@@ -217,20 +217,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
           content: new Text(
-            "An email has been sent to $_email. Please check your email for OTP verification. Also check in your spam folder.",
+            "An email has been sent to $_email. \n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.",
             style: TextStyle(
               color: Colors.black,
             ),
           ),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
-            new FlatButton(
+            new OutlineButton(
               child: new Text(
                 "OK",
                 style: TextStyle(
                   color: Colors.black,
                 ),
               ),
+              shape: new RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(30)),
+              borderSide: BorderSide(color: Colors.black),
               onPressed: () {
                 _onLogin();
               },

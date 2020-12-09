@@ -23,82 +23,115 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _password = "";
   String _password2 = "";
   bool _rememberMe = false;
+  bool _validateName = false;
+  bool _validateEmail = false;
+  bool _validatePhone = false;
+  bool _validatePassword = false;
+  bool _validatePassword2 = false;
   SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Registeration'),
-      ),
-      body: new Container(
-        child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-            child: SingleChildScrollView(
-                child: Column(children: [
-              Image.asset(
-                'assets/images/sportsclick.png',
-                scale: 5.5,
-              ),
-              TextField(
-                  controller: _nmcontroller,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                      labelText: 'Name', icon: Icon(Icons.person))),
-              TextField(
-                  controller: _emcontroller,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                      labelText: 'Email', icon: Icon(Icons.email))),
-              TextField(
-                  controller: _phcontroller,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                      labelText: 'Phone', icon: Icon(Icons.phone))),
-              TextField(
-                controller: _pscontroller,
-                decoration: InputDecoration(
-                    labelText: 'Password', icon: Icon(Icons.lock)),
-                obscureText: true,
-              ),
-              TextField(
-                controller: _ps2controller,
-                decoration: InputDecoration(
-                    labelText: 'Confirm Password', icon: Icon(Icons.lock)),
-                obscureText: true,
-              ),
-              Row(
-                children: <Widget>[
-                  Checkbox(
-                    value: _rememberMe,
-                    onChanged: (bool value) {
-                      _onChange(value);
-                    },
+        appBar: AppBar(
+            title: Text('Registeration', style: TextStyle(color: Colors.black)),
+            backgroundColor: Colors.transparent,
+            elevation: 25.0),
+        extendBodyBehindAppBar: true,
+        body: Stack(children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/images/background.png'),
+                    fit: BoxFit.cover)),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: <Color>[
+              Colors.white54,
+              Colors.white60,
+              Colors.white54
+            ])),
+            child: Padding(
+                padding:
+                    EdgeInsets.only(top: 35, left: 20, right: 20, bottom: 20),
+                child: SingleChildScrollView(
+                    child: Column(children: [
+                  Image.asset(
+                    'assets/images/sportsclick.png',
+                    scale: 5.5,
                   ),
-                  Text('Remember Me', style: TextStyle(fontSize: 15))
-                ],
-              ),
-              MaterialButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0)),
-                minWidth: 200,
-                height: 40,
-                child: Text('Register'),
-                color: Colors.black,
-                textColor: Colors.white,
-                elevation: 15,
-                onPressed: _onRegister,
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              GestureDetector(
-                  onTap: _onLogin,
-                  child:
-                      Text('Already Register', style: TextStyle(fontSize: 15))),
-            ]))),
-      ),
-    );
+                  TextField(
+                      controller: _nmcontroller,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                          labelText: 'Name',
+                          icon: Icon(Icons.person),
+                          errorText: _validateName ? 'Required' : null)),
+                  TextField(
+                      controller: _emcontroller,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                          labelText: 'Email',
+                          icon: Icon(Icons.email),
+                          errorText: _validateEmail ? 'Required' : null)),
+                  TextField(
+                      controller: _phcontroller,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                          labelText: 'Phone',
+                          icon: Icon(Icons.phone),
+                          errorText: _validatePhone ? 'Required' : null)),
+                  TextField(
+                    controller: _pscontroller,
+                    decoration: InputDecoration(
+                        labelText: 'Password',
+                        icon: Icon(Icons.lock),
+                        errorText: _validatePassword ? 'Required' : null),
+                    obscureText: true,
+                  ),
+                  TextField(
+                    controller: _ps2controller,
+                    decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        icon: Icon(Icons.lock),
+                        errorText: _validatePassword2 ? 'Required' : null),
+                    obscureText: true,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (bool value) {
+                          _onChange(value);
+                        },
+                      ),
+                      Text('Remember Me', style: TextStyle(fontSize: 15))
+                    ],
+                  ),
+                  MaterialButton(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    minWidth: 180,
+                    height: 40,
+                    child: Text('Register'),
+                    textColor: Colors.black,
+                    elevation: 15,
+                    onPressed: _onRegister,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  GestureDetector(
+                      onTap: _onLogin,
+                      child: Text('Already Register',
+                          style: TextStyle(fontSize: 15))),
+                ]))),
+          ),
+        ]));
   }
 
   Future<void> _onRegister() async {
@@ -154,14 +187,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
       }
     } else {
-      Toast.show(
-        "Incomplete Details",
-        context,
-        duration: Toast.LENGTH_LONG,
-        gravity: Toast.CENTER,
-      );
       setState(() {
         _rememberMe = false;
+        _name.isEmpty ? _validateName = true : _validateName = false;
+        _email.isEmpty ? _validateEmail = true : _validateEmail = false;
+        _phone.isEmpty ? _validatePhone = true : _validatePhone = false;
+        _password.isEmpty
+            ? _validatePassword = true
+            : _validatePassword = false;
+        _password2.isEmpty
+            ? _validatePassword2 = true
+            : _validatePassword2 = false;
       });
     }
   }

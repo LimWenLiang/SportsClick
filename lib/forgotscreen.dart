@@ -12,6 +12,7 @@ class ForgotScreen extends StatefulWidget {
 class _ForgotScreenState extends State<ForgotScreen> {
   final TextEditingController _emcontroller = TextEditingController();
   String _email = "";
+  String _emailError;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email',
+                      errorText: _emailError,
                       icon: Icon(Icons.email),
                     ),
                   ),
@@ -57,31 +59,40 @@ class _ForgotScreenState extends State<ForgotScreen> {
 
   Future<void> _onVerify() async {
     _email = _emcontroller.text;
-    ProgressDialog pr = new ProgressDialog(context,
-        type: ProgressDialogType.Normal, isDismissible: false);
-    pr.style(message: "Sending email...");
-    await pr.show();
-    http.post(
-        "http://itprojectoverload.com/sportsclick/php/forgot_password.php",
-        body: {
-          "email": _email,
-        }).then((res) {
-      print(res.body);
-      print(_email);
-      if (res.body == "SUCCESS") {
-        _showDialog();
-      } else {
-        Toast.show(
-          "Failed to send. Please check your email.",
-          context,
-          duration: Toast.LENGTH_LONG,
-          gravity: Toast.CENTER,
-        );
-      }
-    }).catchError((err) {
-      print(err);
-    });
-    await pr.hide();
+    if (_email.isNotEmpty) {
+      setState(() {
+        _emailError = null;
+      });
+      ProgressDialog pr = new ProgressDialog(context,
+          type: ProgressDialogType.Normal, isDismissible: false);
+      pr.style(message: "Sending email...");
+      await pr.show();
+      http.post(
+          "http://itprojectoverload.com/sportsclick/php/forgot_password.php",
+          body: {
+            "email": _email,
+          }).then((res) {
+        print(res.body);
+        print(_email);
+        if (res.body == "SUCCESS") {
+          _showDialog();
+        } else {
+          Toast.show(
+            "Failed to send. Please check your email.",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+        }
+      }).catchError((err) {
+        print(err);
+      });
+      await pr.hide();
+    } else {
+      setState(() {
+        _emailError = "Please enter your email";
+      });
+    }
   }
 
   _showDialog() {

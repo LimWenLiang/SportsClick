@@ -34,69 +34,86 @@ class _LoginScreenState extends State<LoginScreen> {
       onWillPop: _onBackPressAppBar,
       child: Scaffold(
           appBar: AppBar(
-            title: Text('Login'),
-          ),
-          body: new Container(
-            child: Padding(
-                padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                child: SingleChildScrollView(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Image.asset(
-                      'assets/images/sportsclick.png',
-                      scale: 5.5,
-                    ),
-                    TextField(
-                        controller: _emcontroller,
-                        keyboardType: TextInputType.emailAddress,
+              title: Text('Login', style: TextStyle(color: Colors.black)),
+              backgroundColor: Colors.transparent,
+              elevation: 25.0),
+          extendBodyBehindAppBar: true,
+          body: Stack(children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/images/background.png'),
+                      fit: BoxFit.cover)),
+            ),
+            Container(
+              alignment: Alignment.bottomCenter,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: <Color>[
+                Colors.white54,
+                Colors.white60,
+                Colors.white54
+              ])),
+              child: Padding(
+                  padding: EdgeInsets.only(top: 35, left: 20, right: 20, bottom: 20),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/images/sportsclick.png',
+                        scale: 5.5,
+                      ),
+                      TextField(
+                          controller: _emcontroller,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                              labelText: 'Email', icon: Icon(Icons.email))),
+                      TextField(
+                        controller: _pscontroller,
                         decoration: InputDecoration(
-                            labelText: 'Email', icon: Icon(Icons.email))),
-                    TextField(
-                      controller: _pscontroller,
-                      decoration: InputDecoration(
-                          labelText: 'Password', icon: Icon(Icons.lock)),
-                      obscureText: true,
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Checkbox(
-                          value: _rememberMe,
-                          onChanged: (bool value) {
-                            _onChange(value);
-                          },
+                            labelText: 'Password', icon: Icon(Icons.lock)),
+                        obscureText: true,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (bool value) {
+                              _onChange(value);
+                            },
+                          ),
+                          Text('Remember Me', style: TextStyle(fontSize: 15))
+                        ],
+                      ),
+                      MaterialButton(
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1.5),
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
-                        Text('Remember Me', style: TextStyle(fontSize: 15))
-                      ],
-                    ),
-                    MaterialButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0)),
-                      minWidth: 200,
-                      height: 40,
-                      child: Text('Login'),
-                      color: Colors.black,
-                      textColor: Colors.white,
-                      elevation: 15,
-                      onPressed: _onLogin,
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    GestureDetector(
-                        onTap: _onRegister,
-                        child: Text('Register New Account',
-                            style: TextStyle(fontSize: 15))),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    GestureDetector(
-                        onTap: _onForgot,
-                        child: Text('Forgot Account',
-                            style: TextStyle(fontSize: 15))),
-                  ],
-                ))),
-          )),
+                        minWidth: 180,
+                        height: 40,
+                        child: Text('Login'),
+                        elevation: 15,
+                        onPressed: _onLogin,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                          onTap: _onRegister,
+                          child: Text('Register New Account',
+                              style: TextStyle(fontSize: 15))),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      GestureDetector(
+                          onTap: _onForgot,
+                          child: Text('Forgot Password',
+                              style: TextStyle(fontSize: 15))),
+                    ],
+                  ))),
+            )
+          ])),
     );
   }
 

@@ -75,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                           labelText: 'Email',
                           icon: Icon(Icons.email),
-                          errorText: _validateEmail ? 'Required' : null)),
+                          errorText: _validateEmail ? 'Please enter valid email' : null)),
                   TextField(
                       controller: _phcontroller,
                       keyboardType: TextInputType.phone,
@@ -88,7 +88,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: InputDecoration(
                         labelText: 'Password',
                         icon: Icon(Icons.lock),
-                        errorText: _validatePassword ? 'Required' : null),
+                        errorText: _validatePassword
+                            ? 'Password should consists upper case,\nlower case and number'
+                            : null),
                     obscureText: true,
                   ),
                   TextField(
@@ -96,7 +98,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         icon: Icon(Icons.lock),
-                        errorText: _validatePassword2 ? 'Required' : null),
+                        errorText: _validatePassword2
+                            ? 'Password didn\'t match'
+                            : null),
                     obscureText: true,
                   ),
                   Row(
@@ -147,34 +151,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _password.isNotEmpty &&
         _password2.isNotEmpty) {
       if (_password == _password2) {
-        ProgressDialog pr = new ProgressDialog(context,
-            type: ProgressDialogType.Normal, isDismissible: false);
-        pr.style(message: "Registration...");
-        await pr.show();
-        http.post(
-            "http://itprojectoverload.com/sportsclick/php/register_user.php",
-            body: {
-              "name": _name,
-              "email": _email,
-              "phone": _phone,
-              "password": _password,
-              "password2": _password2,
-            }).then((res) {
-          print(res.body);
-          if (res.body == "SUCCESS") {
-            _showDialog();
-          } else {
-            Toast.show(
-              "Registration Failed",
-              context,
-              duration: Toast.LENGTH_LONG,
-              gravity: Toast.CENTER,
-            );
-          }
-        }).catchError((err) {
-          print(err);
-        });
-        await pr.hide();
+        if (validateEmail(_email) && validatePassword(_password)) {
+          ProgressDialog pr = new ProgressDialog(context,
+              type: ProgressDialogType.Normal, isDismissible: false);
+          pr.style(message: "Registration...");
+          await pr.show();
+          http.post(
+              "http://itprojectoverload.com/sportsclick/php/register_user.php",
+              body: {
+                "name": _name,
+                "email": _email,
+                "phone": _phone,
+                "password": _password,
+                "password2": _password2,
+              }).then((res) {
+            print(res.body);
+            if (res.body == "SUCCESS") {
+              _showDialog();
+            } else {
+              Toast.show(
+                "Registration Failed",
+                context,
+                duration: Toast.LENGTH_LONG,
+                gravity: Toast.CENTER,
+              );
+            }
+          }).catchError((err) {
+            print(err);
+          });
+          await pr.hide();
+        } else {
+          Toast.show(
+            "Please check your email/password",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+          setState(() {
+            _password.isEmpty
+                ? _validatePassword = true
+                : _validatePassword = false;
+            _password2.isEmpty
+                ? _validatePassword2 = true
+                : _validatePassword2 = false;
+          });
+        }
       } else {
         Toast.show(
           "Password didn't match. Please try again.",
@@ -189,17 +210,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       setState(() {
         _rememberMe = false;
-        _name.isEmpty ? _validateName = true : _validateName = false;
-        _email.isEmpty ? _validateEmail = true : _validateEmail = false;
-        _phone.isEmpty ? _validatePhone = true : _validatePhone = false;
-        _password.isEmpty
-            ? _validatePassword = true
-            : _validatePassword = false;
-        _password2.isEmpty
-            ? _validatePassword2 = true
-            : _validatePassword2 = false;
       });
     }
+    setState(() {
+      _name.isEmpty ? _validateName = true : _validateName = false;
+      _email.isEmpty ? _validateEmail = true : _validateEmail = false;
+      _phone.isEmpty ? _validatePhone = true : _validatePhone = false;
+      _password.isEmpty ? _validatePassword = true : _validatePassword = false;
+      _password2.isEmpty
+          ? _validatePassword2 = true
+          : _validatePassword2 = false;
+    });
   }
 
   void _onChange(bool value) {
@@ -277,6 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         );
       },
+      barrierDismissible: false,
     );
   }
 }

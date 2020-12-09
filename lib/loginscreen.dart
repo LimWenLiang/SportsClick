@@ -20,6 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = "";
   String _password = "";
   bool _rememberMe = false;
+  bool _validateEmail = false;
+  bool _validatePassword = false;
   SharedPreferences prefs;
 
   @override
@@ -54,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Colors.white54
               ])),
               child: Padding(
-                  padding: EdgeInsets.only(top: 35, left: 20, right: 20, bottom: 20),
+                  padding:
+                      EdgeInsets.only(top: 35, left: 20, right: 20, bottom: 20),
                   child: SingleChildScrollView(
                       child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -67,11 +70,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emcontroller,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                              labelText: 'Email', icon: Icon(Icons.email))),
+                              labelText: 'Email',
+                              icon: Icon(Icons.email),
+                              errorText: _validateEmail ? 'Required' : null)),
                       TextField(
                         controller: _pscontroller,
                         decoration: InputDecoration(
-                            labelText: 'Password', icon: Icon(Icons.lock)),
+                            labelText: 'Password',
+                            icon: Icon(Icons.lock),
+                            errorText: _validatePassword ? 'Required' : null),
                         obscureText: true,
                       ),
                       Row(
@@ -193,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLogin() async {
     _email = _emcontroller.text;
     _password = _pscontroller.text;
+
     ProgressDialog pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false);
     pr.style(message: "Login...");
@@ -219,11 +227,22 @@ class _LoginScreenState extends State<LoginScreen> {
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
+        setState(() {
+          _email.isEmpty ? _validateEmail = true : _validateEmail = false;
+          _password.isEmpty
+              ? _validatePassword = true
+              : _validatePassword = false;
+        });
       }
     }).catchError((err) {
       print(err);
     });
     await pr.hide();
+
+    setState(() {
+      _email.isEmpty ? _validateEmail = true : _validateEmail = false;
+      _password.isEmpty ? _validatePassword = true : _validatePassword = false;
+    });
   }
 
   void _onRegister() {

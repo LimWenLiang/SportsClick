@@ -82,7 +82,7 @@ class _ResetScreenState extends State<ResetScreen> {
               "password": _password,
             }).then((res) {
           print(res.body);
-          if (res.body == "SUCCESS") {
+          if (res.body == "success") {
             Toast.show(
               "Reset Success",
               context,

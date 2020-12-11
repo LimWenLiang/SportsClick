@@ -74,7 +74,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
           }).then((res) {
         print(res.body);
         print(_email);
-        if (res.body == "SUCCESS") {
+        if (res.body == "success") {
           _showDialog();
         } else {
           Toast.show(

@@ -70,15 +70,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emcontroller,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
-                              labelText: 'Email',
-                              icon: Icon(Icons.email),
-                              errorText: _validateEmail ? 'Required' : null)),
+                              labelText: 'Email', icon: Icon(Icons.email))),
                       TextField(
                         controller: _pscontroller,
                         decoration: InputDecoration(
-                            labelText: 'Password',
-                            icon: Icon(Icons.lock),
-                            errorText: _validatePassword ? 'Required' : null),
+                            labelText: 'Password', icon: Icon(Icons.lock)),
                         obscureText: true,
                       ),
                       Row(
@@ -157,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _password = _pscontroller.text;
 
     if (value) {
-      if (_email.length < 4 && _password.length < 4) {
+      if (_email.length < 4 && _password.length < 8) {
         print("INVALID EMAIL/PASSWORD");
         _rememberMe = false;
         Toast.show(
@@ -200,49 +196,50 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLogin() async {
     _email = _emcontroller.text;
     _password = _pscontroller.text;
-
-    ProgressDialog pr = new ProgressDialog(context,
-        type: ProgressDialogType.Normal, isDismissible: false);
-    pr.style(message: "Login...");
-    await pr.show();
-    http.post("http://itprojectoverload.com/sportsclick/php/login_user.php",
-        body: {
-          "email": _email,
-          "password": _password,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "SUCCESS") {
-        Toast.show(
-          "Login Success",
-          context,
-          duration: Toast.LENGTH_LONG,
-          gravity: Toast.CENTER,
-        );
-        Navigator.push(context,
-            MaterialPageRoute(builder: (BuildContext context) => MainScreen()));
-      } else {
-        Toast.show(
-          "Login Failed",
-          context,
-          duration: Toast.LENGTH_LONG,
-          gravity: Toast.CENTER,
-        );
-        setState(() {
-          _email.isEmpty ? _validateEmail = true : _validateEmail = false;
-          _password.isEmpty
-              ? _validatePassword = true
-              : _validatePassword = false;
-        });
-      }
-    }).catchError((err) {
-      print(err);
-    });
-    await pr.hide();
-
-    setState(() {
-      _email.isEmpty ? _validateEmail = true : _validateEmail = false;
-      _password.isEmpty ? _validatePassword = true : _validatePassword = false;
-    });
+    if (_email.isNotEmpty && _password.isNotEmpty) {
+      ProgressDialog pr = new ProgressDialog(context,
+          type: ProgressDialogType.Normal, isDismissible: false);
+      pr.style(message: "Login...");
+      await pr.show();
+      http.post("http://itprojectoverload.com/sportsclick/php/login_user.php",
+          body: {
+            "email": _email,
+            "password": _password,
+          }).then((res) {
+        print(res.body);
+        if (res.body == "success") {
+          Toast.show(
+            "Login Success",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => MainScreen()));
+        } else if (res.body == "noverify") {
+          _showDialog();
+        } else {
+          Toast.show(
+            "Login Failed",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+        }
+      }).catchError((err) {
+        print(err);
+      });
+      await pr.hide();
+    } else {
+      Toast.show(
+        "Incomplete Details",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity: Toast.CENTER,
+      );
+    }
   }
 
   void _onRegister() {
@@ -253,5 +250,48 @@ class _LoginScreenState extends State<LoginScreen> {
   void _onForgot() {
     Navigator.push(context,
         MaterialPageRoute(builder: (BuildContext context) => ForgotScreen()));
+  }
+
+  _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(
+            "Email Has Not Verify",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          content: new Text(
+            "Please check your email from SportsClick. \n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new OutlineButton(
+              child: new Text(
+                "OK",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              shape: new RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(30)),
+              borderSide: BorderSide(color: Colors.black),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+      barrierDismissible: false,
+    );
   }
 }

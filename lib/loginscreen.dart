@@ -20,8 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = "";
   String _password = "";
   bool _rememberMe = false;
-  bool _validateEmail = false;
-  bool _validatePassword = false;
   SharedPreferences prefs;
 
   @override

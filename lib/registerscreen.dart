@@ -23,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _password = "";
   String _password2 = "";
   bool _rememberMe = false;
+  bool _acceptance = false;
   bool _validateEmail = false;
   bool _validatePhone = false;
   bool _validatePassword = false;
@@ -106,10 +107,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Checkbox(
                         value: _rememberMe,
                         onChanged: (bool value) {
-                          _onChange(value);
+                          _onChangeRememberMe(value);
                         },
                       ),
                       Text('Remember Me', style: TextStyle(fontSize: 15))
+                    ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _acceptance,
+                        onChanged: (bool value) {
+                          _onChangeAcceptance(value);
+                        },
+                      ),
+                      Text('Accept Terms of Service and\nPrivacy Policy',
+                          style: TextStyle(fontSize: 15))
                     ],
                   ),
                   MaterialButton(
@@ -127,10 +140,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(
                     height: 8,
                   ),
-                  GestureDetector(
-                      onTap: _onLogin,
-                      child: Text('Already Register',
-                          style: TextStyle(fontSize: 15))),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text('Already have an account? '),
+                      GestureDetector(
+                          onTap: _onLogin,
+                          child: RichText(
+                              text: TextSpan(
+                                  style: TextStyle(
+                                      color: Colors.deepPurple, fontSize: 15, fontWeight: FontWeight.bold),
+                                  children: <TextSpan>[
+                                TextSpan(
+                                  text: 'Login',
+                                )
+                              ]))),
+                    ],
+                  ),
                 ]))),
           ),
         ]));
@@ -164,34 +190,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
               setState(() {
                 _validatePassword2 = false;
               });
-              ProgressDialog pr = new ProgressDialog(context,
-                  type: ProgressDialogType.Normal, isDismissible: false);
-              pr.style(message: "Registration...");
-              await pr.show();
-              http.post(
-                  "http://itprojectoverload.com/sportsclick/php/register_user.php",
-                  body: {
-                    "name": _name,
-                    "email": _email,
-                    "phone": _phone,
-                    "password": _password,
-                    "password2": _password2,
-                  }).then((res) {
-                print(res.body);
-                if (res.body == "success") {
-                  _showDialog();
-                } else {
-                  Toast.show(
-                    "Registration Failed",
-                    context,
-                    duration: Toast.LENGTH_LONG,
-                    gravity: Toast.CENTER,
-                  );
-                }
-              }).catchError((err) {
-                print(err);
-              });
-              await pr.hide();
+              if (_acceptance) {
+                ProgressDialog pr = new ProgressDialog(context,
+                    type: ProgressDialogType.Normal, isDismissible: false);
+                pr.style(message: "Registration...");
+                await pr.show();
+                http.post(
+                    "http://itprojectoverload.com/sportsclick/php/register_user.php",
+                    body: {
+                      "name": _name,
+                      "email": _email,
+                      "phone": _phone,
+                      "password": _password,
+                      "password2": _password2,
+                    }).then((res) {
+                  print(res.body);
+                  if (res.body == "success") {
+                    _showRegisterDialog();
+                  } else {
+                    Toast.show(
+                      "Registration Failed",
+                      context,
+                      duration: Toast.LENGTH_LONG,
+                      gravity: Toast.CENTER,
+                    );
+                  }
+                }).catchError((err) {
+                  print(err);
+                });
+                await pr.hide();
+              } else {
+                _showAcceptDialog();
+              }
             } else {
               print("invalid password");
               setState(() {
@@ -233,10 +263,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  void _onChange(bool value) {
+  void _onChangeRememberMe(bool value) {
     setState(() {
       _rememberMe = value;
       savepref(value);
+    });
+  }
+
+  void _onChangeAcceptance(bool value) {
+    setState(() {
+      _acceptance = value;
     });
   }
 
@@ -269,7 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return regExp.hasMatch(value);
   }
 
-  _showDialog() {
+  _showRegisterDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -309,6 +345,110 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   borderRadius: new BorderRadius.circular(30)),
               borderSide: BorderSide(color: Colors.black),
               onPressed: () {
+                _onLogin();
+              },
+            ),
+          ],
+        );
+      },
+      barrierDismissible: false,
+    );
+  }
+
+  _showAcceptDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(
+            "SportsClick's Term of Service",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          content: new RichText(
+              text: new TextSpan(
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  children: <TextSpan>[
+                new TextSpan(
+                    text:
+                        'I accept SportsClick\'s Terms and Conditions and Privacy Policy.')
+              ])),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new OutlineButton(
+              child: new Text(
+                "Accept",
+                style: TextStyle(
+                  color: Colors.green,
+                ),
+              ),
+              shape: new RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(30)),
+              borderSide: BorderSide(color: Colors.green),
+              onPressed: () {
+                setState(() {
+                  _acceptance = true;
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+            SizedBox(width: 5),
+            GestureDetector(
+              child: Text('Decline', style: TextStyle(fontSize: 15)),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showCancelDialog();
+              },
+            ),
+          ],
+        );
+      },
+      barrierDismissible: false,
+    );
+  }
+
+  _showCancelDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(
+            "Cancel register for SportsClick?",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          content: new RichText(
+              text: new TextSpan(
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  children: <TextSpan>[
+                new TextSpan(
+                    text:
+                        'Declining SportsClick terms means you wont have account.')
+              ])),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            GestureDetector(
+              child: Text('Go Back',
+                  style: TextStyle(color: Colors.green, fontSize: 15)),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showAcceptDialog();
+              },
+            ),
+            SizedBox(width: 5),
+            GestureDetector(
+              child: Text('Cancel Register',
+                  style: TextStyle(color: Colors.red, fontSize: 15)),
+              onTap: () {
+                Navigator.of(context).pop();
                 _onLogin();
               },
             ),

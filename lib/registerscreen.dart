@@ -149,7 +149,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: RichText(
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Colors.deepPurple, fontSize: 15, fontWeight: FontWeight.bold),
+                                      color: Colors.deepPurple,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
                                   children: <TextSpan>[
                                 TextSpan(
                                   text: 'Login',
@@ -208,6 +210,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (res.body == "success") {
                     _showRegisterDialog();
                   } else {
+                    setState(() {
+                      _rememberMe = false;
+                    });
                     Toast.show(
                       "Registration Failed",
                       context,

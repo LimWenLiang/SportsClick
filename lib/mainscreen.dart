@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
           Center(
               child: Container(
                   alignment: Alignment.bottomCenter,
-                  height: 300,
+                  height: 400,
                   width: 300,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: <Color>[
@@ -35,10 +35,14 @@ class _MainScreenState extends State<MainScreen> {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        Image.asset(
+                          'assets/images/sportsclick.png',
+                          scale: 5,
+                        ),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Text("Welcome to\nSportsClick",
+                              Text("Welcome",
                                   style: TextStyle(
                                       color: Colors.deepPurple,
                                       fontSize: 40,

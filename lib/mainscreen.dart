@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
                   ])),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: <Widget>[
                         Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[

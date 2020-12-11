@@ -201,6 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             }
           } else {
             setState(() {
+              print("invalid password2");
               _rememberMe = false;
               _validatePassword = true;
             });

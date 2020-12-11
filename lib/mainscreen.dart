@@ -12,7 +12,7 @@ class _MainScreenState extends State<MainScreen> {
         appBar: AppBar(
             title: Text('Main Screen', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
-            elevation: 25.0),
+            elevation: 10.0),
         extendBodyBehindAppBar: true,
         body: Stack(children: <Widget>[
           Container(

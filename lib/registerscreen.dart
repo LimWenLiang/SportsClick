@@ -283,12 +283,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          content: new Text(
-            "An email has been sent to $_email. \n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
+          content: new RichText(
+              text: new TextSpan(
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  children: <TextSpan>[
+                new TextSpan(text: 'An email has been sent to '),
+                new TextSpan(
+                    text: '$_email',
+                    style: new TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                new TextSpan(
+                    text:
+                        '\n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.')
+              ])),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new OutlineButton(

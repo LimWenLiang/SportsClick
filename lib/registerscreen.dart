@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() {
           _validateEmail = false;
         });
-        if (_phone.length > 7 && _phone.length < 13) {
+        if (_phone is int && _phone.length > 7 && _phone.length < 13) {
           setState(() {
             _validatePhone = false;
           });

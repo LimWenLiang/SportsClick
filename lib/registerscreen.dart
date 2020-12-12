@@ -168,6 +168,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _name = _nmcontroller.text;
     _email = _emcontroller.text;
     _phone = _phcontroller.text;
+    bool _isNumeric(String _phone) {
+      if (_phone == null) {
+        return false;
+      }
+      return int.tryParse(_phone) != null;
+    }
+
     _password = _pscontroller.text;
     _password2 = _ps2controller.text;
 
@@ -180,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() {
           _validateEmail = false;
         });
-        if (_phone is int && _phone.length > 7 && _phone.length < 13) {
+        if (_phone.length > 7 && _phone.length < 13 && _isNumeric(_phone) == true) {
           setState(() {
             _validatePhone = false;
           });
@@ -412,7 +419,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         );
       },
-      barrierDismissible: false,
+      barrierDismissible: true,
     );
   }
 

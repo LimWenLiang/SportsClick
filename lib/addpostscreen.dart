@@ -1,9 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:toast/toast.dart';
+import 'user.dart';
 
 class AddPostScreen extends StatefulWidget {
+  final User user;
+  const AddPostScreen({Key key, this.user}) : super(key: key);
+
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
@@ -13,6 +20,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   File _image;
   String pathAsset = 'assets/images/camera.png';
   final TextEditingController _titlecontroller = TextEditingController();
+  final TextEditingController _descriptioncontroller = TextEditingController();
+  String _title, _description;
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +84,25 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         controller: _titlecontroller,
                         keyboardType: TextInputType.name,
                         decoration: InputDecoration(
-                            labelText: 'Your Restaurant Name',
-                            icon: Icon(Icons.person))),
+                            labelText: 'Title', icon: Icon(Icons.title))),
+                    TextField(
+                        controller: _descriptioncontroller,
+                        keyboardType: TextInputType.name,
+                        decoration: InputDecoration(
+                            labelText: 'Description',
+                            icon: Icon(Icons.description))),
+                    SizedBox(height: 10),
+                    MaterialButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1.5),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      minWidth: 180,
+                      height: 40,
+                      child: Text('Add Post'),
+                      elevation: 15,
+                      onPressed: _addNewPostDialog,
+                    ),
                   ],
                 ))),
           )
@@ -190,5 +216,87 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _image = croppedFile;
       setState(() {});
     }
+  }
+
+  void _addNewPostDialog() {
+    _title = _titlecontroller.text;
+    _description = _descriptioncontroller.text;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text(
+              "Add New Post? ",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text(
+                  "Yes",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _onAddPost();
+                },
+              ),
+              new FlatButton(
+                child: new Text(
+                  "No",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void _onAddPost() {
+    _title = _titlecontroller.text;
+    _description = _descriptioncontroller.text;
+
+    final dateTime = DateTime.now();
+    String base64Image = base64Encode(_image.readAsBytesSync());
+    print(base64Image);
+    http.post("http://itprojectoverload.com/sportsclick/php/add_post.php",
+        body: {
+          "posttitle": _title,
+          "postdesc": _description,
+          "postimage": widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
+          "username": widget.user.name,
+          "encoded_string": base64Image,
+        }).then((res) {
+      print(res.body);
+      if (res.body == "success") {
+        Toast.show(
+          "Add Post Success",
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.CENTER,
+        );
+        Navigator.pop(context);
+      } else {
+        Toast.show(
+          "Add Post Failed",
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.CENTER,
+        );
+      }
+    }).catchError((err) {
+      print(err);
+    });
   }
 }

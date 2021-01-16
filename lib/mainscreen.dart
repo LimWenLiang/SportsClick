@@ -5,14 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart' as http;
 import 'addpostscreen.dart';
+import 'editpostscreen.dart';
+import 'user.dart';
 
 class MainScreen extends StatefulWidget {
+  final String email;
+  const MainScreen({Key key, this.email}) : super(key: key);
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List postList;
+  List postList, userList;
   String _titleCenter = "Loading Post";
   double screenHeight, screenWidth;
 
@@ -20,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _loadPost();
+    _loadUser();
   }
 
   @override
@@ -32,13 +38,23 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: Colors.transparent,
           elevation: 25.0,
           actions: <Widget>[
-            IconButton(
+            Flexible(
+              child: IconButton(
+                icon: Icon(Icons.refresh),
+                iconSize: 24,
+                onPressed: () {
+                  _loadPost();
+                },
+              ),
+            ),
+            Flexible(
+                child: IconButton(
               icon: Icon(Icons.chat),
               iconSize: 24,
               onPressed: () {
                 print("onChat");
               },
-            ),
+            )),
           ],
         ),
         extendBodyBehindAppBar: true,
@@ -101,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
                                         width: screenWidth / 1.1,
                                         child: CachedNetworkImage(
                                             imageUrl:
-                                                "http://itprojectoverload.com/sportsclick/images/${postList[index]['postimage']}.jpg",
+                                                "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
                                                 new CircularProgressIndicator(),
@@ -113,7 +129,7 @@ class _MainScreenState extends State<MainScreen> {
                                         postList[index]['posttitle']),
                                     Text("Description: " +
                                         postList[index]['postdesc']),
-                                    Text(postList[index]['username'] +
+                                    Text(userList[0]['name'] +
                                         " (" +
                                         postList[index]['postdate'] +
                                         ")"),
@@ -150,12 +166,41 @@ class _MainScreenState extends State<MainScreen> {
   _loadSportCenterDetail(int index) {}
 
   void _addPostScreen() {
-    print("Add Post");
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => AddPostScreen()));
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => AddPostScreen(user: user)));
   }
 
   void _editPostScreen() {
-    print("Edit Post");
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => UserPostScreen(user: user)));
+  }
+
+  void _loadUser() {
+    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
+        body: {
+          "email": widget.email,
+        }).then((res) {
+      print(res.body);
+      if (res.body != "nodata") {
+        setState(() {
+          var jsondata = json.decode(res.body);
+          userList = jsondata["user"];
+        });
+      }
+    }).catchError((err) {
+      print(err);
+    });
   }
 }

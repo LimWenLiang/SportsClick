@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -8,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'mainscreen.dart';
 import 'registerscreen.dart';
 import 'forgotscreen.dart';
+import 'user.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -21,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String _password = "";
   bool _rememberMe = false;
   SharedPreferences prefs;
+  List userList;
 
   @override
   void initState() {
@@ -215,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext context) => MainScreen()));
+                  builder: (BuildContext context) => MainScreen(email: _email)));
         } else if (res.body == "noverify") {
           _showDialog();
         } else {
@@ -238,6 +242,23 @@ class _LoginScreenState extends State<LoginScreen> {
         gravity: Toast.CENTER,
       );
     }
+  }
+
+  void _loadUser() {
+    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
+        body: {
+          "email": _email,
+        }).then((res) {
+      print(res.body);
+      if (res.body != "nodata") {
+        setState(() {
+          var jsondata = json.decode(res.body);
+          userList = jsondata["user"];
+        });
+      }
+    }).catchError((err) {
+      print(err);
+    });
   }
 
   void _onRegister() {

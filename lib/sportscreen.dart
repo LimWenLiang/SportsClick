@@ -81,7 +81,7 @@ class _SportScreenState extends State<SportScreen> {
                                           width: screenWidth / 1.1,
                                           child: CachedNetworkImage(
                                               imageUrl:
-                                                  "http://itprojectoverload.com/sportsclick/images/${centerList[index]['centerimage']}.jpg",
+                                                  "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
                                               fit: BoxFit.cover,
                                               placeholder: (context, url) =>
                                                   new CircularProgressIndicator(),

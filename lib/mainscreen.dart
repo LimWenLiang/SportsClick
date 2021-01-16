@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:sportsclick/sportcenter.dart';
-import 'package:toast/toast.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'sportcenterdetail.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:http/http.dart' as http;
+import 'addpostscreen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -13,14 +12,14 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List centerList;
+  List postList;
+  String _titleCenter = "Loading Post";
   double screenHeight, screenWidth;
-  String _titleCenter = "Loading Sport Center...";
 
   @override
   void initState() {
     super.initState();
-    _loadSportCenter();
+    _loadPost();
   }
 
   @override
@@ -29,10 +28,33 @@ class _MainScreenState extends State<MainScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-            title: Text('Main Screen', style: TextStyle(color: Colors.black)),
-            backgroundColor: Colors.transparent,
-            elevation: 20.0),
+          title: Text('Main Screen', style: TextStyle(color: Colors.black)),
+          backgroundColor: Colors.transparent,
+          elevation: 25.0,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.chat),
+              iconSize: 24,
+              onPressed: () {
+                print("onChat");
+              },
+            ),
+          ],
+        ),
         extendBodyBehindAppBar: true,
+        floatingActionButton:
+            SpeedDial(animatedIcon: AnimatedIcons.menu_close, children: [
+          SpeedDialChild(
+              child: Icon(Icons.add),
+              label: "Add Post",
+              labelBackgroundColor: Colors.white,
+              onTap: _addPostScreen),
+          SpeedDialChild(
+              child: Icon(Icons.edit),
+              label: "Edit/Delete Post",
+              labelBackgroundColor: Colors.white,
+              onTap: _editPostScreen)
+        ]),
         body: Stack(children: <Widget>[
           Container(
             decoration: BoxDecoration(
@@ -40,8 +62,7 @@ class _MainScreenState extends State<MainScreen> {
                     image: AssetImage('assets/images/background.png'),
                     fit: BoxFit.cover)),
           ),
-          Center(
-              child: Container(
+          Container(
             alignment: Alignment.bottomCenter,
             decoration: BoxDecoration(
                 gradient: LinearGradient(colors: <Color>[
@@ -49,71 +70,76 @@ class _MainScreenState extends State<MainScreen> {
               Colors.white60,
               Colors.white54
             ])),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: <
-                    Widget>[
-              centerList == null
-                  ? Flexible(
-                      child: Container(
-                      child: Center(
-                        child: Text(_titleCenter,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                      ),
-                    ))
-                  : Flexible(
-                      child: GridView.count(
-                      crossAxisCount: 1,
-                      childAspectRatio: (screenWidth / screenHeight) / 0.45,
-                      children: List.generate(centerList.length, (index) {
-                        return Padding(
-                            padding: EdgeInsets.all(1),
-                            child: Card(
-                              child: InkWell(
-                                  onTap: () => _loadSportCenterDetail(
-                                      index), //pass parameter need "() =>"
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                          height: screenHeight / 3.2,
-                                          width: screenWidth / 1.1,
-                                          child: CachedNetworkImage(
-                                              imageUrl:
-                                                  "http://itprojectoverload.com/sportsclick/images/${centerList[index]['centerimage']}.jpg",
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  new CircularProgressIndicator(),
-                                              errorWidget: (context, url,
-                                                      error) =>
-                                                  new Icon(Icons.broken_image,
-                                                      size: screenWidth / 3))),
-                                      Text(centerList[index]['centername']),
-                                      Text(centerList[index]['centerphone']),
-                                      Text(centerList[index]['centerlocation']),
-                                    ],
-                                  )),
-                            ));
-                      }),
-                    ))
-            ]),
-          )),
+          ),
+          Column(children: [
+            postList == null
+                ? Flexible(
+                    child: Container(
+                    child: Center(
+                      child: Text(_titleCenter,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                  ))
+                : Flexible(
+                    child: GridView.count(
+                    crossAxisCount: 1,
+                    childAspectRatio: (screenWidth / screenHeight) / 0.50,
+                    children: List.generate(postList.length, (index) {
+                      return Padding(
+                          padding: EdgeInsets.all(1),
+                          child: Card(
+                            elevation: 0,
+                            color: Colors.transparent,
+                            child: InkWell(
+                                onTap: () => _loadSportCenterDetail(
+                                    index), //pass parameter need "() =>"
+                                child: Column(
+                                  children: [
+                                    Container(
+                                        height: screenHeight / 3.2,
+                                        width: screenWidth / 1.1,
+                                        child: CachedNetworkImage(
+                                            imageUrl:
+                                                "http://itprojectoverload.com/sportsclick/images/${postList[index]['postimage']}.jpg",
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                new CircularProgressIndicator(),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                new Icon(Icons.broken_image,
+                                                    size: screenWidth / 3))),
+                                    Text("Title: " +
+                                        postList[index]['posttitle']),
+                                    Text("Description: " +
+                                        postList[index]['postdesc']),
+                                    Text(postList[index]['username'] +
+                                        " (" +
+                                        postList[index]['postdate'] +
+                                        ")"),
+                                  ],
+                                )),
+                          ));
+                    }),
+                  ))
+          ]),
         ]));
   }
 
-  void _loadSportCenter() {
-    http.post(
-        "http://itprojectoverload.com/sportsclick/php/load_sportcenter.php",
+  void _loadPost() {
+    print("Load Post");
+    http.post("http://itprojectoverload.com/sportsclick/php/load_post.php",
         body: {}).then((res) {
       print(res.body);
       if (res.body == "nodata") {
-        centerList = null;
+        postList = null;
         setState(() {
-          _titleCenter = "No Sport Center Found";
+          _titleCenter = "No Post Found";
         });
       } else {
         setState(() {
           var jsondata = json.decode(res.body);
-          centerList = jsondata["center"];
+          postList = jsondata["post"];
         });
       }
     }).catchError((err) {
@@ -121,19 +147,15 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  _loadSportCenterDetail(int index) {
-    print(centerList[index]['centername']);
-    SportCenter sportCenter = new SportCenter(
-      centerid: centerList[index]['centerid'],
-      centername: centerList[index]['centername'],
-      centerphone: centerList[index]['centerphone'],
-      centerlocation: centerList[index]['centerlocation'],
-      centerimage: centerList[index]['centerimage'],
-    );
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) =>
-                SportCenterDetail(center: sportCenter)));
+  _loadSportCenterDetail(int index) {}
+
+  void _addPostScreen() {
+    print("Add Post");
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => AddPostScreen()));
+  }
+
+  void _editPostScreen() {
+    print("Edit Post");
   }
 }

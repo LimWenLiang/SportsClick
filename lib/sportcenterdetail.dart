@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:sportsclick/sportcenter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
-import 'court.dart';
-import 'courtdetail.dart';
 
 class SportCenterDetail extends StatefulWidget {
   final SportCenter center;
@@ -80,8 +78,7 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
                         padding: EdgeInsets.all(1),
                         child: Card(
                           child: InkWell(
-                              onTap: () => _loadCourtDetail(
-                                  index), //pass parameter need "() =>"
+                              //onTap: () => _loadCourtDetail(index), //pass parameter need "() =>"
                               child: Column(
                                 children: [
                                   Text("Court Type: " +
@@ -122,18 +119,4 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
     });
   }
 
-  _loadCourtDetail(int index) {
-    print(courtList[index]['courttype']);
-    Court court = new Court(
-      courtid: courtList[index]['courtid'],
-      courttype: courtList[index]['courttype'],
-      courtprice: courtList[index]['courtprice'],
-      courtqty: courtList[index]['courtqty'],
-      centerid: widget.center.centerid
-    );
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => CourtDetail(court: court)));
-  }
 }

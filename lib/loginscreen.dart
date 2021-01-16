@@ -219,7 +219,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext context) => MainScreen(email: _email)));
+                  builder: (BuildContext context) =>
+                      MainScreen(email: _email)));
         } else if (res.body == "noverify") {
           _showDialog();
         } else {

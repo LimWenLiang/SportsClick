@@ -1,9 +1,9 @@
 class Post {
-  String postid, posttitle, postdesc, postimage, username;
+  String postid, posttitle, postdesc, postimage, useremail;
   Post(
       {this.postid,
       this.posttitle,
       this.postdesc,
       this.postimage,
-      this.username});
+      this.useremail});
 }

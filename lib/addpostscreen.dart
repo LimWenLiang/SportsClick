@@ -275,7 +275,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           "posttitle": _title,
           "postdesc": _description,
           "postimage": widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
-          "username": widget.user.name,
+          "useremail": widget.user.email,
           "encoded_string": base64Image,
         }).then((res) {
       print(res.body);

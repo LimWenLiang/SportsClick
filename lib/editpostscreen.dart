@@ -1,28 +1,37 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
+import 'mainscreen.dart';
+import 'post.dart';
 import 'user.dart';
 
-class UserPostScreen extends StatefulWidget {
-  final User user;
-  const UserPostScreen({Key key, this.user}) : super(key: key);
+class EditPostScreen extends StatefulWidget {
+  final Post post;
+  const EditPostScreen({Key key, this.post}) : super(key: key);
 
   @override
-  _UserPostScreenState createState() => _UserPostScreenState();
+  _EditPostScreenState createState() => _EditPostScreenState();
 }
 
-class _UserPostScreenState extends State<UserPostScreen> {
+class _EditPostScreenState extends State<EditPostScreen> {
   double screenHeight, screenWidth;
-  List postList;
+  File _image;
+  List postList, userList;
   String _titleCenter = "Loading Post...";
+  String pathAsset = 'assets/images/camera.png';
+  final TextEditingController _titlecontroller = TextEditingController();
+  final TextEditingController _descriptioncontroller = TextEditingController();
+  String _title, _description;
 
   @override
   void initState() {
+    _loadUser();
     super.initState();
-    _loadPost();
-    //_loadUser();
   }
 
   @override
@@ -31,10 +40,12 @@ class _UserPostScreenState extends State<UserPostScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-          title: Text('Your Post', style: TextStyle(color: Colors.black)),
+          title: Text(widget.post.posttitle,
+              style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.transparent,
           elevation: 25.0,
         ),
+        extendBodyBehindAppBar: true,
         body: Stack(children: <Widget>[
           Container(
             decoration: BoxDecoration(
@@ -43,119 +54,252 @@ class _UserPostScreenState extends State<UserPostScreen> {
                     fit: BoxFit.cover)),
           ),
           Container(
-            alignment: Alignment.topCenter,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: <Color>[
-              Colors.white54,
-              Colors.white60,
-              Colors.white54
-            ])),
-          ),
-          Column(children: [
-            postList == null
-                ? Flexible(
-                    child: Container(
-                    child: Center(
-                      child: Text(_titleCenter,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+              alignment: Alignment.topCenter,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: <Color>[
+                Colors.white54,
+                Colors.white60,
+                Colors.white54
+              ])),
+              child: Padding(
+                  padding:
+                      EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 20),
+                  child: SingleChildScrollView(
+                      child: Column(children: [
+                    Container(
+                        height: screenHeight / 3.8,
+                        width: screenWidth / 1.8,
+                        child: CachedNetworkImage(
+                            imageUrl:
+                                "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg",
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                new CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => new Icon(
+                                Icons.broken_image,
+                                size: screenWidth / 3))),
+                    Text("Old Title: " + widget.post.posttitle),
+                    Text("Old Description: " + widget.post.postdesc),
+                    SizedBox(height: 15),
+                    GestureDetector(
+                        onTap: () => {_onPictureSelection()},
+                        child: Container(
+                          height: screenHeight / 3.2,
+                          width: screenWidth / 1.8,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: _image == null
+                                  ? AssetImage(pathAsset)
+                                  : FileImage(_image),
+                              fit: BoxFit.cover,
+                            ),
+                            border: Border.all(
+                              width: 3.0,
+                              color: Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                    5.0) //         <--- border radius here
+                                ),
+                          ),
+                        )),
+                    SizedBox(height: 5),
+                    Text("Click camera to change new picture",
+                        style: TextStyle(fontSize: 15.0, color: Colors.black)),
+                    SizedBox(height: 5),
+                    TextField(
+                        controller: _titlecontroller,
+                        keyboardType: TextInputType.name,
+                        decoration: InputDecoration(
+                            labelText: 'New Title', icon: Icon(Icons.title))),
+                    TextField(
+                        controller: _descriptioncontroller,
+                        keyboardType: TextInputType.name,
+                        decoration: InputDecoration(
+                            labelText: 'New Description',
+                            icon: Icon(Icons.description))),
+                    SizedBox(height: 10),
+                    MaterialButton(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1.5),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      minWidth: 180,
+                      height: 40,
+                      child: Text('Edit Post'),
+                      elevation: 15,
+                      onPressed: _editPostDialog,
                     ),
-                  ))
-                : Flexible(
-                    child: GridView.count(
-                    crossAxisCount: 1,
-                    childAspectRatio: (screenWidth / screenHeight) / 0.60,
-                    children: List.generate(postList.length, (index) {
-                      return Padding(
-                          padding: EdgeInsets.all(1),
-                          child: Card(
-                            elevation: 0,
-                            color: Colors.transparent,
-                            child: InkWell(
-                                onTap: () => _loadSportCenterDetail(
-                                    index), //pass parameter need "() =>"
-                                child: Column(
-                                  children: [
-                                    Container(
-                                        height: screenHeight / 3.2,
-                                        width: screenWidth / 1.1,
-                                        child: CachedNetworkImage(
-                                            imageUrl:
-                                                "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                new CircularProgressIndicator(),
-                                            errorWidget: (context, url,
-                                                    error) =>
-                                                new Icon(Icons.broken_image,
-                                                    size: screenWidth / 3))),
-                                    Text("Title: " +
-                                        postList[index]['posttitle']),
-                                    Text("Description: " +
-                                        postList[index]['postdesc']),
-                                    Text(widget.user.name +
-                                        " (" +
-                                        postList[index]['postdate'] +
-                                        ")"),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        MaterialButton(
-                                          shape: RoundedRectangleBorder(
-                                            side: BorderSide(width: 1.5),
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          minWidth: 130,
-                                          height: 40,
-                                          child: Text('Edit Post'),
-                                          elevation: 15,
-                                          onPressed: () =>
-                                              _editPostDialog(index),
-                                        ),
-                                        SizedBox(width: 10),
-                                        MaterialButton(
-                                          shape: RoundedRectangleBorder(
-                                            side: BorderSide(width: 1.5),
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          minWidth: 130,
-                                          height: 40,
-                                          child: Text('Delete Post'),
-                                          elevation: 15,
-                                          onPressed: () =>
-                                              _deletePostDialog(index),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                )),
-                          ));
-                    }),
-                  ))
-          ]),
+                  ])))),
         ]));
   }
 
-  void _loadPost() {
-    print("Load Post");
-    http.post(
-        "http://itprojectoverload.com/sportsclick/php/load_personal_post.php",
+  _onPictureSelection() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              content: new Container(
+                  //color: Colors.white,
+                  height: screenHeight / 4,
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "Take picture from:",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            )),
+                        SizedBox(height: 5),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                  child: MaterialButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                minWidth: 100,
+                                height: 100,
+                                child: Text('Camera',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )),
+                                color: Colors.grey,
+                                textColor: Colors.black,
+                                elevation: 10,
+                                onPressed: () =>
+                                    {Navigator.pop(context), _chooseCamera()},
+                              )),
+                              SizedBox(width: 10),
+                              Flexible(
+                                  child: MaterialButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                minWidth: 100,
+                                height: 100,
+                                child: Text('Gallery',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )),
+                                color: Colors.grey,
+                                textColor: Colors.black,
+                                elevation: 10,
+                                onPressed: () => {
+                                  Navigator.pop(context),
+                                  _chooseGallery(),
+                                },
+                              ))
+                            ])
+                      ])));
+        });
+  }
+
+  void _chooseCamera() async {
+    // ignore: deprecated_member_use
+    _image = await ImagePicker.pickImage(
+        source: ImageSource.camera, maxHeight: 800, maxWidth: 800);
+    _cropImage();
+    setState(() {});
+  }
+
+  void _chooseGallery() async {
+    // ignore: deprecated_member_use
+    _image = await ImagePicker.pickImage(
+        source: ImageSource.gallery, maxHeight: 800, maxWidth: 800);
+    _cropImage();
+    setState(() {});
+  }
+
+  Future<void> _cropImage() async {
+    File croppedFile = await ImageCropper.cropImage(
+        sourcePath: _image.path,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+                CropAspectRatioPreset.square,
+              ]
+            : [
+                CropAspectRatioPreset.square,
+              ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Resize',
+            toolbarColor: Colors.deepPurple,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ));
+    if (croppedFile != null) {
+      _image = croppedFile;
+      setState(() {});
+    }
+  }
+
+  void _editPostDialog() {
+    _title = _titlecontroller.text;
+    _description = _descriptioncontroller.text;
+    print(userList[0]['name']);
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text(
+              "Edit " + widget.post.posttitle + " to " + _title + "?",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text(
+                  "Yes",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _onEditPost();
+                },
+              ),
+              new FlatButton(
+                child: new Text(
+                  "No",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void _loadUser() {
+    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
         body: {
-          "useremail": widget.user.email,
+          "email": widget.post.useremail,
         }).then((res) {
       print(res.body);
       if (res.body == "nodata") {
-        postList = null;
-        setState(() {
-          _titleCenter = "No Post Found";
-        });
+        _titleCenter = "Loading User";
       } else {
         setState(() {
           var jsondata = json.decode(res.body);
-          postList = jsondata["post"];
+          userList = jsondata["user"];
         });
       }
     }).catchError((err) {
@@ -163,77 +307,40 @@ class _UserPostScreenState extends State<UserPostScreen> {
     });
   }
 
-  _loadSportCenterDetail(int index) {}
+  void _onEditPost() {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    _title = _titlecontroller.text;
+    _description = _descriptioncontroller.text;
 
-  void _editPostDialog(int index) {}
-
-  void _deletePostDialog(int index) {
-    print("Delete " + postList[index]['posttitle']);
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: new Text(
-                "Delete post " + postList[index]['posttitle'] + "?",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0)),
-              content: new Text(
-                "Are your sure? ",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              actions: <Widget>[
-                // usually buttons at the bottom of the dialog
-                new FlatButton(
-                  child: new Text(
-                    "Yes",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    _deletePost(index);
-                  },
-                ),
-                new FlatButton(
-                  child: new Text(
-                    "No",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ]);
-        });
-  }
-
-  void _deletePost(int index) {
-    http.post("https://itprojectoverload.com/sportsclick/php/delete_post.php",
+    final dateTime = DateTime.now();
+    String base64Image = base64Encode(_image.readAsBytesSync());
+    print(base64Image);
+    http.post("http://itprojectoverload.com/sportsclick/php/edit_post.php",
         body: {
-          "useremail": widget.user.email,
-          "postid": postList[index]['postid'],
+          "postid": widget.post.postid,
+          "posttitle": _title,
+          "postdesc": _description,
+          "useremail": widget.post.useremail,
+          "postimage":
+              userList[0]['name'] + "-${dateTime.microsecondsSinceEpoch}",
+          "encoded_string": base64Image,
         }).then((res) {
       print(res.body);
       if (res.body == "success") {
-        _loadPost();
         Toast.show(
-          "Delete Success",
+          "Edit Post Success",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
+        Navigator.pop(context);
       } else {
         Toast.show(
-          "Delete Failed",
+          "Edit Post Failed",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,

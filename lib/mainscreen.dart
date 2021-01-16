@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart' as http;
 import 'addpostscreen.dart';
-import 'editpostscreen.dart';
+import 'userpostscreen.dart';
 import 'user.dart';
 
 class MainScreen extends StatefulWidget {
@@ -18,14 +18,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   List postList, userList;
-  String _titleCenter = "Loading Post";
+  String _titleCenter = "Loading Post...";
   double screenHeight, screenWidth;
+  DateTime date;
 
   @override
   void initState() {
     super.initState();
-    _loadPost();
     _loadUser();
+    _loadPost();
   }
 
   @override
@@ -47,14 +48,6 @@ class _MainScreenState extends State<MainScreen> {
                 },
               ),
             ),
-            Flexible(
-                child: IconButton(
-              icon: Icon(Icons.chat),
-              iconSize: 24,
-              onPressed: () {
-                print("onChat");
-              },
-            )),
           ],
         ),
         extendBodyBehindAppBar: true,
@@ -100,46 +93,91 @@ class _MainScreenState extends State<MainScreen> {
                 : Flexible(
                     child: GridView.count(
                     crossAxisCount: 1,
-                    childAspectRatio: (screenWidth / screenHeight) / 0.50,
+                    childAspectRatio: (screenWidth / screenHeight) / 0.6,
                     children: List.generate(postList.length, (index) {
                       return Padding(
-                          padding: EdgeInsets.all(1),
+                          padding: EdgeInsets.only(top: 10, bottom: 10),
                           child: Card(
                             elevation: 0,
                             color: Colors.transparent,
-                            child: InkWell(
-                                onTap: () => _loadSportCenterDetail(
-                                    index), //pass parameter need "() =>"
-                                child: Column(
-                                  children: [
-                                    Container(
-                                        height: screenHeight / 3.2,
-                                        width: screenWidth / 1.1,
-                                        child: CachedNetworkImage(
-                                            imageUrl:
-                                                "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                new CircularProgressIndicator(),
-                                            errorWidget: (context, url,
-                                                    error) =>
-                                                new Icon(Icons.broken_image,
-                                                    size: screenWidth / 3))),
-                                    Text("Title: " +
-                                        postList[index]['posttitle']),
-                                    Text("Description: " +
-                                        postList[index]['postdesc']),
-                                    Text(userList[0]['name'] +
-                                        " (" +
-                                        postList[index]['postdate'] +
-                                        ")"),
-                                  ],
-                                )),
+                            child: SingleChildScrollView(
+                                child: InkWell(
+                                    onTap: () => _loadSportCenterDetail(
+                                        index), //pass parameter need "() =>"
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                            textAlign: TextAlign.left,
+                                            text: TextSpan(
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 17,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                children: [
+                                                  TextSpan(
+                                                      text: postList[index]
+                                                          ['posttitle'])
+                                                ])),
+                                        RichText(
+                                            text: TextSpan(
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 17,
+                                                ),
+                                                children: [
+                                              TextSpan(
+                                                  text: postList[index]
+                                                      ['postdesc'])
+                                            ])),
+                                        Container(
+                                            height: screenHeight / 2.8,
+                                            width: screenWidth / 1.0,
+                                            child: CachedNetworkImage(
+                                                imageUrl:
+                                                    "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    new CircularProgressIndicator(),
+                                                errorWidget: (context, url,
+                                                        error) =>
+                                                    new Icon(Icons.broken_image,
+                                                        size:
+                                                            screenWidth / 3))),
+                                        RichText(
+                                            textAlign: TextAlign.left,
+                                            text: TextSpan(
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 17,
+                                                ),
+                                                children: [
+                                                  TextSpan(text: "Posted by: "),
+                                                  TextSpan(
+                                                      text: userList[0]['name'],
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ])),
+                                        Text(
+                                            "Date/Time Posted: " +
+                                                _dateTime(index),
+                                            style: TextStyle(fontSize: 10)),
+                                      ],
+                                    ))),
                           ));
                     }),
                   ))
           ]),
         ]));
+  }
+
+  String _dateTime(int index) {
+    String s = postList[index]['postdate'];
+    String result = s.substring(0, s.indexOf('.'));
+    return result;
   }
 
   void _loadPost() {
@@ -183,8 +221,10 @@ class _MainScreenState extends State<MainScreen> {
       email: userList[0]['email'],
       phone: userList[0]['phone'],
     );
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => UserPostScreen(user: user)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => UserPostScreen(user: user)));
   }
 
   void _loadUser() {
@@ -193,7 +233,9 @@ class _MainScreenState extends State<MainScreen> {
           "email": widget.email,
         }).then((res) {
       print(res.body);
-      if (res.body != "nodata") {
+      if (res.body == "nodata") {
+        _titleCenter = "Loading User";
+      } else {
         setState(() {
           var jsondata = json.decode(res.body);
           userList = jsondata["user"];

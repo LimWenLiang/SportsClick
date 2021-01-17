@@ -17,7 +17,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List postList, userList;
+  List postList, userList, postUserList;
   String _titleCenter = "Loading Post...";
   double screenHeight, screenWidth;
   DateTime date;
@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-          title: Text('Main Screen', style: TextStyle(color: Colors.black)),
+          title: Text('SportsClick', style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.transparent,
           elevation: 25.0,
           actions: <Widget>[
@@ -156,7 +156,8 @@ class _MainScreenState extends State<MainScreen> {
                                                 children: [
                                                   TextSpan(text: "Posted by: "),
                                                   TextSpan(
-                                                      text: userList[0]['name'],
+                                                      text: postList[index]
+                                                          ['name'],
                                                       style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),

@@ -33,7 +33,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-            title: Text('Your Post', style: TextStyle(color: Colors.black)),
+            title: Text('My Post', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 25.0,
             actions: <Widget>[

@@ -17,44 +17,61 @@ class _ForgotScreenState extends State<ForgotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Forgot Password'),
-      ),
-      body: new Container(
-        child: Padding(
-            padding: EdgeInsets.all(20),
-            child: SingleChildScrollView(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                  Image.asset(
-                    'assets/images/sportsclick.png',
-                    scale: 5.5,
-                  ),
-                  TextField(
-                    controller: _emcontroller,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      errorText: _emailError,
-                      icon: Icon(Icons.email),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)),
-                    minWidth: 200,
-                    height: 40,
-                    child: Text('Verify'),
-                    color: Colors.black,
-                    textColor: Colors.white,
-                    elevation: 15,
-                    onPressed: _onVerify,
-                  ),
-                ]))),
-      ),
-    );
+        appBar: AppBar(
+            title:
+                Text('Verify Account', style: TextStyle(color: Colors.black)),
+            backgroundColor: Colors.transparent,
+            elevation: 25.0),
+        extendBodyBehindAppBar: true,
+        body: Stack(children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/images/background.png'),
+                    fit: BoxFit.cover)),
+          ),
+          Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: <Color>[
+              Colors.white54,
+              Colors.white60,
+              Colors.white54
+            ])),
+            child: Padding(
+                padding:
+                    EdgeInsets.only(top: 35, left: 20, right: 20, bottom: 20),
+                child: SingleChildScrollView(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                      Image.asset(
+                        'assets/images/sportsclick.png',
+                        scale: 5.5,
+                      ),
+                      TextField(
+                        controller: _emcontroller,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          errorText: _emailError,
+                          icon: Icon(Icons.email),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      MaterialButton(
+                        shape: RoundedRectangleBorder(
+                            side: BorderSide(width: 1.5),
+                            borderRadius: BorderRadius.circular(20.0)),
+                        minWidth: 180,
+                        height: 40,
+                        child: Text('Verify Account'),
+                        elevation: 15,
+                        onPressed: _onVerify,
+                      ),
+                    ]))),
+          ),
+        ]));
   }
 
   Future<void> _onVerify() async {
@@ -78,7 +95,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
           _showDialog();
         } else {
           Toast.show(
-            "Failed to send. Please check your email.",
+            "Failed to verify. Please check your email.",
             context,
             duration: Toast.LENGTH_LONG,
             gravity: Toast.CENTER,
@@ -109,12 +126,19 @@ class _ForgotScreenState extends State<ForgotScreen> {
           ),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          content: new Text(
-            "An email has been sent to $_email. \n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
+          content: new RichText(
+              text: new TextSpan(
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  children: <TextSpan>[
+                new TextSpan(text: 'An email has been sent to '),
+                new TextSpan(
+                    text: '$_email',
+                    style: new TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                new TextSpan(
+                    text:
+                        '\n\nIf you cannot see the email from SportsClick in your inbox, make sure to check your SPAM folder.')
+              ])),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new OutlineButton(

@@ -27,7 +27,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
   final TextEditingController _titlecontroller = TextEditingController();
   final TextEditingController _descriptioncontroller = TextEditingController();
   String _title, _description;
-  int titleCharLength = 100;
+  int titleCharLength = 50;
   int descCharLength = 100;
 
   @override

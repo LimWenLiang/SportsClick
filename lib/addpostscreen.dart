@@ -22,6 +22,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController _titlecontroller = TextEditingController();
   final TextEditingController _descriptioncontroller = TextEditingController();
   String _title, _description;
+  int titleCharLength = 100;
+  int descCharLength = 100;
 
   @override
   Widget build(BuildContext context) {
@@ -81,16 +83,41 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         style: TextStyle(fontSize: 10.0, color: Colors.black)),
                     SizedBox(height: 5),
                     TextField(
-                        controller: _titlecontroller,
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                            labelText: 'Title', icon: Icon(Icons.title))),
+                      controller: _titlecontroller,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        labelText: 'Title',
+                        icon: Icon(Icons.title),
+                        hintText: 'Maximum of 50 characters',
+                      ),
+                      onChanged: _onChangedTitle,
+                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      Text(
+                        "$titleCharLength character remaining",
+                        textAlign: TextAlign.right,
+                        style:
+                            TextStyle(fontSize: 10, color: Colors.deepPurple),
+                      ),
+                    ]),
                     TextField(
-                        controller: _descriptioncontroller,
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                            labelText: 'Description',
-                            icon: Icon(Icons.description))),
+                      controller: _descriptioncontroller,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                        icon: Icon(Icons.description),
+                        hintText: 'Maximum of 100 characters',
+                      ),
+                      onChanged: _onChangedDesc,
+                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      Text(
+                        "$descCharLength character remaining",
+                        textAlign: TextAlign.right,
+                        style:
+                            TextStyle(fontSize: 10, color: Colors.deepPurple),
+                      ),
+                    ]),
                     SizedBox(height: 10),
                     MaterialButton(
                       shape: RoundedRectangleBorder(
@@ -107,6 +134,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ))),
           )
         ]));
+  }
+
+  _onChangedTitle(String value) {
+    setState(() {
+      titleCharLength = 50 - value.length;
+    });
+  }
+
+  _onChangedDesc(String value) {
+    setState(() {
+      descCharLength = 100 - value.length;
+    });
   }
 
   _onPictureSelection() {
@@ -263,6 +302,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
   }
 
+  bool _validation(String title, String description) {
+    if (title.isEmpty || description.isEmpty) {
+      return false;
+    } else {
+      if (title.length > 50 || description.length > 100) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
   void _onAddPost() {
     _title = _titlecontroller.text;
     _description = _descriptioncontroller.text;
@@ -270,33 +321,52 @@ class _AddPostScreenState extends State<AddPostScreen> {
     final dateTime = DateTime.now();
     String base64Image = base64Encode(_image.readAsBytesSync());
     print(base64Image);
-    http.post("http://itprojectoverload.com/sportsclick/php/add_post.php",
-        body: {
-          "posttitle": _title,
-          "postdesc": _description,
-          "postimage": widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
-          "useremail": widget.user.email,
-          "encoded_string": base64Image,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "success") {
+    if (_validation(_title, _description)) {
+      http.post("http://itprojectoverload.com/sportsclick/php/add_post.php",
+          body: {
+            "posttitle": _title,
+            "postdesc": _description,
+            "postimage":
+                widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
+            "useremail": widget.user.email,
+            "encoded_string": base64Image,
+          }).then((res) {
+        print(res.body);
+        if (res.body == "success") {
+          Toast.show(
+            "Add Post Success",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+          Navigator.pop(context);
+        } else {
+          Toast.show(
+            "Add Post Failed",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+        }
+      }).catchError((err) {
+        print(err);
+      });
+    } else {
+      if (_title.isEmpty || _description.isEmpty) {
         Toast.show(
-          "Add Post Success",
+          "Incomplete Title/Description",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
-        Navigator.pop(context);
       } else {
         Toast.show(
-          "Add Post Failed",
+          "Invalid Title/Description",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
       }
-    }).catchError((err) {
-      print(err);
-    });
+    }
   }
 }

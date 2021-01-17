@@ -27,6 +27,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
   final TextEditingController _titlecontroller = TextEditingController();
   final TextEditingController _descriptioncontroller = TextEditingController();
   String _title, _description;
+  int titleCharLength = 100;
+  int descCharLength = 100;
 
   @override
   void initState() {
@@ -107,16 +109,41 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         style: TextStyle(fontSize: 15.0, color: Colors.black)),
                     SizedBox(height: 5),
                     TextField(
-                        controller: _titlecontroller,
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                            labelText: 'New Title', icon: Icon(Icons.title))),
+                      controller: _titlecontroller,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        labelText: 'New Title',
+                        icon: Icon(Icons.title),
+                        hintText: 'Maximum of 50 characters',
+                      ),
+                      onChanged: _onChangedTitle,
+                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      Text(
+                        "$titleCharLength character remaining",
+                        textAlign: TextAlign.right,
+                        style:
+                            TextStyle(fontSize: 10, color: Colors.deepPurple),
+                      ),
+                    ]),
                     TextField(
-                        controller: _descriptioncontroller,
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                            labelText: 'New Description',
-                            icon: Icon(Icons.description))),
+                      controller: _descriptioncontroller,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        labelText: 'New Description',
+                        icon: Icon(Icons.description),
+                        hintText: 'Maximum of 100 characters',
+                      ),
+                      onChanged: _onChangedDesc,
+                    ),
+                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      Text(
+                        "$descCharLength character remaining",
+                        textAlign: TextAlign.right,
+                        style:
+                            TextStyle(fontSize: 10, color: Colors.deepPurple),
+                      ),
+                    ]),
                     SizedBox(height: 10),
                     MaterialButton(
                       shape: RoundedRectangleBorder(
@@ -131,6 +158,18 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     ),
                   ])))),
         ]));
+  }
+
+  _onChangedTitle(String value) {
+    setState(() {
+      titleCharLength = 50 - value.length;
+    });
+  }
+
+  _onChangedDesc(String value) {
+    setState(() {
+      descCharLength = 100 - value.length;
+    });
   }
 
   _onPictureSelection() {
@@ -307,6 +346,18 @@ class _EditPostScreenState extends State<EditPostScreen> {
     });
   }
 
+  bool _validation(String title, String description) {
+    if (title.isEmpty || description.isEmpty) {
+      return false;
+    } else {
+      if (title.length > 50 || description.length > 100) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
   void _onEditPost() {
     User user = new User(
       name: userList[0]['name'],
@@ -319,35 +370,53 @@ class _EditPostScreenState extends State<EditPostScreen> {
     final dateTime = DateTime.now();
     String base64Image = base64Encode(_image.readAsBytesSync());
     print(base64Image);
-    http.post("http://itprojectoverload.com/sportsclick/php/edit_post.php",
-        body: {
-          "postid": widget.post.postid,
-          "posttitle": _title,
-          "postdesc": _description,
-          "useremail": widget.post.useremail,
-          "postimage":
-              userList[0]['name'] + "-${dateTime.microsecondsSinceEpoch}",
-          "encoded_string": base64Image,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "success") {
+    if (_validation(_title, _description)) {
+      http.post("http://itprojectoverload.com/sportsclick/php/edit_post.php",
+          body: {
+            "postid": widget.post.postid,
+            "posttitle": _title,
+            "postdesc": _description,
+            "useremail": widget.post.useremail,
+            "postimage":
+                userList[0]['name'] + "-${dateTime.microsecondsSinceEpoch}",
+            "encoded_string": base64Image,
+          }).then((res) {
+        print(res.body);
+        if (res.body == "success") {
+          Toast.show(
+            "Edit Post Success",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+          Navigator.pop(context);
+        } else {
+          Toast.show(
+            "Edit Post Failed",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+        }
+      }).catchError((err) {
+        print(err);
+      });
+    } else {
+      if (_title.isEmpty || _description.isEmpty) {
         Toast.show(
-          "Edit Post Success",
+          "Incomplete New Title/Description",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
-        Navigator.pop(context);
       } else {
         Toast.show(
-          "Edit Post Failed",
+          "Invalid New Title/Description",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
       }
-    }).catchError((err) {
-      print(err);
-    });
+    }
   }
 }

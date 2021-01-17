@@ -88,10 +88,33 @@ class _UserPostScreenState extends State<UserPostScreen> {
                                 onTap: () => _loadSportCenterDetail(
                                     index), //pass parameter need "() =>"
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    RichText(
+                                        textAlign: TextAlign.left,
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold),
+                                            children: [
+                                              TextSpan(
+                                                  text: postList[index]
+                                                      ['posttitle'])
+                                            ])),
+                                    RichText(
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 17,
+                                            ),
+                                            children: [
+                                          TextSpan(
+                                              text: postList[index]['postdesc'])
+                                        ])),
                                     Container(
-                                        height: screenHeight / 3.2,
-                                        width: screenWidth / 1.1,
+                                        height: screenHeight / 2.8,
+                                        width: screenWidth / 1.0,
                                         child: CachedNetworkImage(
                                             imageUrl:
                                                 "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
@@ -102,14 +125,9 @@ class _UserPostScreenState extends State<UserPostScreen> {
                                                     error) =>
                                                 new Icon(Icons.broken_image,
                                                     size: screenWidth / 3))),
-                                    Text("Title: " +
-                                        postList[index]['posttitle']),
-                                    Text("Description: " +
-                                        postList[index]['postdesc']),
-                                    Text(widget.user.name +
-                                        " (" +
-                                        postList[index]['postdate'] +
-                                        ")"),
+                                    Text(
+                                        "Date/Time Posted: " + _dateTime(index),
+                                        style: TextStyle(fontSize: 10)),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -150,6 +168,12 @@ class _UserPostScreenState extends State<UserPostScreen> {
                   ))
           ]),
         ]));
+  }
+
+  String _dateTime(int index) {
+    String s = postList[index]['postdate'];
+    String result = s.substring(0, s.indexOf('.'));
+    return result;
   }
 
   void _loadPost() {

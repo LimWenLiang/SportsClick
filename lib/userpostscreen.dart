@@ -24,7 +24,6 @@ class _UserPostScreenState extends State<UserPostScreen> {
   void initState() {
     super.initState();
     _loadPost();
-    //_loadUser();
   }
 
   @override
@@ -213,7 +212,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) => EditPostScreen(post: post)));
+            builder: (BuildContext context) => EditPostScreen(post: post, user: widget.user)));
   }
 
   void _deletePostDialog(int index) {

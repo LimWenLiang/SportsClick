@@ -6,13 +6,13 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
-import 'mainscreen.dart';
 import 'post.dart';
 import 'user.dart';
 
 class EditPostScreen extends StatefulWidget {
   final Post post;
-  const EditPostScreen({Key key, this.post}) : super(key: key);
+  final User user;
+  const EditPostScreen({Key key, this.post, this.user}) : super(key: key);
 
   @override
   _EditPostScreenState createState() => _EditPostScreenState();
@@ -32,7 +32,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
 
   @override
   void initState() {
-    _loadUser();
     super.initState();
   }
 
@@ -65,24 +64,41 @@ class _EditPostScreenState extends State<EditPostScreen> {
               ])),
               child: Padding(
                   padding:
-                      EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 20),
+                      EdgeInsets.only(top: 80, left: 10, right: 10, bottom: 20),
                   child: SingleChildScrollView(
                       child: Column(children: [
-                    Container(
-                        height: screenHeight / 3.8,
-                        width: screenWidth / 1.8,
-                        child: CachedNetworkImage(
-                            imageUrl:
-                                "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg",
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                new CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => new Icon(
-                                Icons.broken_image,
-                                size: screenWidth / 3))),
-                    Text("Old Title: " + widget.post.posttitle),
-                    Text("Old Description: " + widget.post.postdesc),
-                    SizedBox(height: 15),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Container(
+                          height: screenHeight / 3.7,
+                          width: screenWidth / 2.4,
+                          child: CachedNetworkImage(
+                              imageUrl:
+                                  "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg",
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  new CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => new Icon(
+                                  Icons.broken_image,
+                                  size: screenWidth / 3))),
+                      SizedBox(width: 5),
+                      Container(
+                          width: screenWidth / 2.4,
+                          child: Column(children: [
+                            Row(children: [
+                              Flexible(
+                                  child: Text(
+                                      "Old Title: " + widget.post.posttitle))
+                            ]),
+                            Row(children: [
+                              Flexible(
+                                  child: Text("Old Description: " +
+                                      widget.post.postdesc))
+                            ]),
+                          ])),
+                    ]),
+                    SizedBox(height: 7.5),
+                    Divider(height: 1, color: Colors.black),
+                    SizedBox(height: 7.5),
                     GestureDetector(
                         onTap: () => {_onPictureSelection()},
                         child: Container(
@@ -327,25 +343,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
         });
   }
 
-  void _loadUser() {
-    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
-        body: {
-          "email": widget.post.useremail,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "nodata") {
-        _titleCenter = "Loading User";
-      } else {
-        setState(() {
-          var jsondata = json.decode(res.body);
-          userList = jsondata["user"];
-        });
-      }
-    }).catchError((err) {
-      print(err);
-    });
-  }
-
   bool _validation(String title, String description) {
     if (title.isEmpty || description.isEmpty) {
       return false;
@@ -359,11 +356,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
   }
 
   void _onEditPost() {
-    User user = new User(
-      name: userList[0]['name'],
-      email: userList[0]['email'],
-      phone: userList[0]['phone'],
-    );
     _title = _titlecontroller.text;
     _description = _descriptioncontroller.text;
 
@@ -378,7 +370,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
             "postdesc": _description,
             "useremail": widget.post.useremail,
             "postimage":
-                userList[0]['name'] + "-${dateTime.microsecondsSinceEpoch}",
+                widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
             "encoded_string": base64Image,
           }).then((res) {
         print(res.body);

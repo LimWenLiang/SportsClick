@@ -1,4 +1,4 @@
-class PostUser {
+class UserPost {
   String name, useremail;
-  PostUser({this.name, this.useremail});
+  UserPost({this.name, this.useremail});
 }

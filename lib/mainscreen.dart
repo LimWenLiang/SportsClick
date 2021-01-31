@@ -204,28 +204,30 @@ class _MainScreenState extends State<MainScreen> {
 
   _loadSportCenterDetail(int index) {}
 
-  void _addPostScreen() {
+  Future<void> _addPostScreen() async {
     User user = new User(
       name: userList[0]['name'],
       email: userList[0]['email'],
       phone: userList[0]['phone'],
     );
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => AddPostScreen(user: user)));
+    _loadPost();
   }
 
-  void _editPostScreen() {
+  Future<void> _editPostScreen() async {
     User user = new User(
       name: userList[0]['name'],
       email: userList[0]['email'],
       phone: userList[0]['phone'],
     );
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => UserPostScreen(user: user)));
+    _loadPost();
   }
 
   void _loadUser() {

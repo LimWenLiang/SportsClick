@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart' as http;
 import 'addpostscreen.dart';
+import 'loginscreen.dart';
 import 'userpostscreen.dart';
 import 'user.dart';
 
@@ -19,6 +19,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   List postList, userList, postUserList;
   String _titleCenter = "Loading Post...";
+  String username = "Loading Username";
   double screenHeight, screenWidth;
   DateTime date;
 
@@ -51,19 +52,104 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         extendBodyBehindAppBar: true,
-        floatingActionButton:
-            SpeedDial(animatedIcon: AnimatedIcons.menu_close, children: [
-          SpeedDialChild(
-              child: Icon(Icons.add),
-              label: "Add Post",
-              labelBackgroundColor: Colors.white,
-              onTap: _addPostScreen),
-          SpeedDialChild(
-              child: Icon(Icons.edit),
-              label: "Edit/Delete Post",
-              labelBackgroundColor: Colors.white,
-              onTap: _editPostScreen)
-        ]),
+        drawer: Container(
+            width: 220,
+            child: Drawer(
+              child: ListView(
+                // Important: Remove any padding from the ListView.
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  DrawerHeader(
+                    child: Stack(
+                      children: <Widget>[
+                        // Stroked text as border.
+                        Positioned(
+                            bottom: 12.0,
+                            right: 5.0,
+                            child: Container(
+                                child: Stack(children: [
+                              Text(
+                                username,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 6
+                                    ..color = Colors.black,
+                                ),
+                              ),
+                              // Solid text as fill.
+                              Text(
+                                username,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ])))
+                      ],
+                    ),
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("assets/images/background.png"),
+                            fit: BoxFit.cover)),
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.person),
+                        SizedBox(width: 20),
+                        Text('My Post'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _editPostScreen();
+                      //_askLogin(widget.email);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.person),
+                        SizedBox(width: 20),
+                        Text('Profile'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      //_askLogin(widget.email);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.sports_soccer),
+                        SizedBox(width: 20),
+                        Text('Sport Center'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      //_askLogin(widget.email);
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.logout),
+                        SizedBox(width: 20),
+                        Text('Logout'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _onLogout();
+                    },
+                  ),
+                ],
+              ),
+            )),
         body: Stack(children: <Widget>[
           Container(
             decoration: BoxDecoration(
@@ -80,6 +166,14 @@ class _MainScreenState extends State<MainScreen> {
               Colors.white54
             ])),
           ),
+          Container(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () {
+                  _addPostScreen();
+                },
+                child: Icon(Icons.add),
+              )),
           Column(children: [
             postList == null
                 ? Flexible(
@@ -237,15 +331,97 @@ class _MainScreenState extends State<MainScreen> {
         }).then((res) {
       print(res.body);
       if (res.body == "nodata") {
-        _titleCenter = "Loading User";
+        setState(() {
+          username = "Guest";
+        });
       } else {
         setState(() {
           var jsondata = json.decode(res.body);
           userList = jsondata["user"];
+          username = userList[0]['name'];
         });
       }
     }).catchError((err) {
       print(err);
     });
+  }
+
+  void _onLogout() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text(
+              "Are you sure you want to logout?",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text(
+                  "Yes",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => LoginScreen()));
+                },
+              ),
+              new FlatButton(
+                child: new Text(
+                  "No",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void _askLogin(String email) {
+    if (email.isEmpty) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text(
+                "Please Login Account to continue.",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              actions: <Widget>[
+                // usually buttons at the bottom of the dialog
+                new FlatButton(
+                  child: new Text(
+                    "Login Account",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => LoginScreen()));
+                  },
+                ),
+              ],
+            );
+          });
+    }
   }
 }

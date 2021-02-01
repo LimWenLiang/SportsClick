@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sportsclick/sportcenter.dart';
-import 'package:toast/toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'addsportcenterscreen.dart';
 import 'sportcenterdetail.dart';
+import 'user.dart';
 
 class SportScreen extends StatefulWidget {
+  final User user;
+  const SportScreen({Key key, this.user}) : super(key: key);
+
   @override
   _SportScreenState createState() => _SportScreenState();
 }
@@ -29,9 +32,21 @@ class _SportScreenState extends State<SportScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-            title: Text('Main Screen', style: TextStyle(color: Colors.black)),
-            backgroundColor: Colors.transparent,
-            elevation: 20.0),
+          title: Text('Sport Center', style: TextStyle(color: Colors.black)),
+          backgroundColor: Colors.transparent,
+          elevation: 20.0,
+          actions: <Widget>[
+            Flexible(
+              child: IconButton(
+                icon: Icon(Icons.add_circle_outline),
+                iconSize: 24,
+                onPressed: () {
+                  _addCenterScreen();
+                },
+              ),
+            ),
+          ],
+        ),
         extendBodyBehindAppBar: true,
         body: Stack(children: <Widget>[
           Container(
@@ -72,8 +87,7 @@ class _SportScreenState extends State<SportScreen> {
                               elevation: 0,
                               color: Colors.transparent,
                               child: InkWell(
-                                  onTap: () => _loadSportCenterDetail(
-                                      index), //pass parameter need "() =>"
+                                  onTap: () => _loadSportCenterDetail(index),
                                   child: Column(
                                     children: [
                                       Container(
@@ -89,9 +103,12 @@ class _SportScreenState extends State<SportScreen> {
                                                       error) =>
                                                   new Icon(Icons.broken_image,
                                                       size: screenWidth / 3))),
-                                      Text(centerList[index]['centername']),
-                                      Text(centerList[index]['centerphone']),
-                                      Text(centerList[index]['centerlocation']),
+                                      Text("Name: " +
+                                          centerList[index]['centername']),
+                                      Text("Phone number: " +
+                                          centerList[index]['centerphone']),
+                                      Text("Location: " +
+                                          centerList[index]['centerlocation']),
                                     ],
                                   )),
                             ));
@@ -130,6 +147,11 @@ class _SportScreenState extends State<SportScreen> {
       centername: centerList[index]['centername'],
       centerphone: centerList[index]['centerphone'],
       centerlocation: centerList[index]['centerlocation'],
+      centeropentime: centerList[index]['centeropentime'],
+      centerclosetime: centerList[index]['centerclosetime'],
+      centerprice: centerList[index]['centerprice'],
+      centeroffday: centerList[index]['centeroffday'],
+      centerremarks: centerList[index]['centerremarks'],
       centerimage: centerList[index]['centerimage'],
     );
     Navigator.push(
@@ -137,5 +159,13 @@ class _SportScreenState extends State<SportScreen> {
         MaterialPageRoute(
             builder: (BuildContext context) =>
                 SportCenterDetail(center: sportCenter)));
+  }
+
+  void _addCenterScreen() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                AddSportCenterScreen(user: widget.user)));
   }
 }

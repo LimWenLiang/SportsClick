@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'addpostscreen.dart';
 import 'loginscreen.dart';
+import 'sportscreen.dart';
 import 'userpostscreen.dart';
 import 'user.dart';
 
@@ -42,10 +43,10 @@ class _MainScreenState extends State<MainScreen> {
           actions: <Widget>[
             Flexible(
               child: IconButton(
-                icon: Icon(Icons.refresh),
+                icon: Icon(Icons.add_circle_outline),
                 iconSize: 24,
                 onPressed: () {
-                  _loadPost();
+                  _addPostScreen();
                 },
               ),
             ),
@@ -53,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         extendBodyBehindAppBar: true,
         drawer: Container(
-            width: 220,
+            width: 300,
             child: Drawer(
               child: ListView(
                 // Important: Remove any padding from the ListView.
@@ -97,27 +98,14 @@ class _MainScreenState extends State<MainScreen> {
                   ListTile(
                     title: Row(
                       children: [
-                        Icon(Icons.person),
+                        Icon(Icons.home),
                         SizedBox(width: 20),
                         Text('My Post'),
                       ],
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      //Navigator.pop(context);
                       _editPostScreen();
-                      //_askLogin(widget.email);
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.person),
-                        SizedBox(width: 20),
-                        Text('Profile'),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
                       //_askLogin(widget.email);
                     },
                   ),
@@ -130,7 +118,21 @@ class _MainScreenState extends State<MainScreen> {
                       ],
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      //Navigator.pop(context);
+                      //_askLogin(widget.email);
+                      _onSportScreen();
+                    },
+                  ),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        Icon(Icons.person),
+                        SizedBox(width: 20),
+                        Text('Profile'),
+                      ],
+                    ),
+                    onTap: () {
+                      //Navigator.pop(context);
                       //_askLogin(widget.email);
                     },
                   ),
@@ -143,7 +145,7 @@ class _MainScreenState extends State<MainScreen> {
                       ],
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      //Navigator.pop(context);
                       _onLogout();
                     },
                   ),
@@ -166,14 +168,6 @@ class _MainScreenState extends State<MainScreen> {
               Colors.white54
             ])),
           ),
-          Container(
-              alignment: Alignment.bottomRight,
-              child: FloatingActionButton(
-                onPressed: () {
-                  _addPostScreen();
-                },
-                child: Icon(Icons.add),
-              )),
           Column(children: [
             postList == null
                 ? Flexible(
@@ -322,6 +316,18 @@ class _MainScreenState extends State<MainScreen> {
         MaterialPageRoute(
             builder: (BuildContext context) => UserPostScreen(user: user)));
     _loadPost();
+  }
+
+  void _onSportScreen() {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => SportScreen(user: user)));
   }
 
   void _loadUser() {

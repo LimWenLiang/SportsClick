@@ -44,95 +44,101 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     fit: BoxFit.cover)),
           ),
           Container(
-            alignment: Alignment.topCenter,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: <Color>[
-              Colors.white54,
-              Colors.white60,
-              Colors.white54
-            ])),
-            child: Padding(
-                padding:
-                    EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 20),
-                child: SingleChildScrollView(
-                    child: Column(
-                  children: [
-                    GestureDetector(
-                        onTap: () => {_onPictureSelection()},
-                        child: Container(
-                          height: screenHeight / 3.2,
-                          width: screenWidth / 1.8,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: _image == null
-                                  ? AssetImage(pathAsset)
-                                  : FileImage(_image),
-                              fit: BoxFit.cover,
-                            ),
-                            border: Border.all(
-                              width: 3.0,
-                              color: Colors.grey,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                    5.0) //         <--- border radius here
+              alignment: Alignment.topCenter,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: <Color>[
+                Colors.white54,
+                Colors.white60,
+                Colors.white54
+              ])),
+              child: Center(
+                child: Padding(
+                    padding: EdgeInsets.only(
+                        top: 80, left: 20, right: 20, bottom: 20),
+                    child: SingleChildScrollView(
+                        child: Column(
+                      children: [
+                        GestureDetector(
+                            onTap: () => {_onPictureSelection()},
+                            child: Container(
+                              height: screenHeight / 3.2,
+                              width: screenWidth / 1.8,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: _image == null
+                                      ? AssetImage(pathAsset)
+                                      : FileImage(_image),
+                                  fit: BoxFit.cover,
                                 ),
+                                border: Border.all(
+                                  width: 3.0,
+                                  color: Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                        5.0) //         <--- border radius here
+                                    ),
+                              ),
+                            )),
+                        SizedBox(height: 5),
+                        Text("Click image to take picture",
+                            style:
+                                TextStyle(fontSize: 10.0, color: Colors.black)),
+                        SizedBox(height: 5),
+                        TextField(
+                          controller: _titlecontroller,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: 'Title',
+                            icon: Icon(Icons.title),
+                            hintText: 'Maximum of 50 characters',
                           ),
-                        )),
-                    SizedBox(height: 5),
-                    Text("Click image to take picture",
-                        style: TextStyle(fontSize: 10.0, color: Colors.black)),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: _titlecontroller,
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                        icon: Icon(Icons.title),
-                        hintText: 'Maximum of 50 characters',
-                      ),
-                      onChanged: _onChangedTitle,
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      Text(
-                        "$titleCharLength character remaining",
-                        textAlign: TextAlign.right,
-                        style:
-                            TextStyle(fontSize: 10, color: Colors.deepPurple),
-                      ),
-                    ]),
-                    TextField(
-                      controller: _descriptioncontroller,
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        icon: Icon(Icons.description),
-                        hintText: 'Maximum of 100 characters',
-                      ),
-                      onChanged: _onChangedDesc,
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      Text(
-                        "$descCharLength character remaining",
-                        textAlign: TextAlign.right,
-                        style:
-                            TextStyle(fontSize: 10, color: Colors.deepPurple),
-                      ),
-                    ]),
-                    SizedBox(height: 10),
-                    MaterialButton(
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1.5),
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      minWidth: 180,
-                      height: 40,
-                      child: Text('Add Post'),
-                      elevation: 15,
-                      onPressed: _addNewPostDialog,
-                    ),
-                  ],
-                ))),
-          )
+                          onChanged: _onChangedTitle,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "$titleCharLength character remaining",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 10, color: Colors.deepPurple),
+                              ),
+                            ]),
+                        TextField(
+                          controller: _descriptioncontroller,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: 'Description',
+                            icon: Icon(Icons.description),
+                            hintText: 'Maximum of 100 characters',
+                          ),
+                          onChanged: _onChangedDesc,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "$descCharLength character remaining",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 10, color: Colors.deepPurple),
+                              ),
+                            ]),
+                        SizedBox(height: 10),
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(width: 1.5),
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          minWidth: 180,
+                          height: 40,
+                          child: Text('Add Post'),
+                          elevation: 15,
+                          onPressed: _addNewPostDialog,
+                        ),
+                      ],
+                    ))),
+              ))
         ]));
   }
 

@@ -42,73 +42,74 @@ class _LoginScreenState extends State<LoginScreen> {
                   fit: BoxFit.cover)),
         ),
         Container(
-          alignment: Alignment.bottomCenter,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: <Color>[
-            Colors.white54,
-            Colors.white60,
-            Colors.white54
-          ])),
-          child: Padding(
-              padding: EdgeInsets.all(20),
-              child: SingleChildScrollView(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset(
-                    'assets/images/sportsclick.png',
-                    scale: 5.5,
-                  ),
-                  TextField(
-                      controller: _emcontroller,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                          labelText: 'Email', icon: Icon(Icons.email))),
-                  TextField(
-                    controller: _pscontroller,
-                    decoration: InputDecoration(
-                        labelText: 'Password', icon: Icon(Icons.lock)),
-                    obscureText: true,
-                  ),
-                  Row(
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: <Color>[
+              Colors.white54,
+              Colors.white60,
+              Colors.white54
+            ])),
+            child: Center(
+              child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Checkbox(
-                        value: _rememberMe,
-                        onChanged: (bool value) {
-                          _onChange(value);
-                        },
+                      Image.asset(
+                        'assets/images/sportsclick.png',
+                        scale: 5.5,
                       ),
-                      Text('Remember Me', style: TextStyle(fontSize: 15))
+                      TextField(
+                          controller: _emcontroller,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                              labelText: 'Email', icon: Icon(Icons.email))),
+                      TextField(
+                        controller: _pscontroller,
+                        decoration: InputDecoration(
+                            labelText: 'Password', icon: Icon(Icons.lock)),
+                        obscureText: true,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (bool value) {
+                              _onChange(value);
+                            },
+                          ),
+                          Text('Remember Me', style: TextStyle(fontSize: 15))
+                        ],
+                      ),
+                      MaterialButton(
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(width: 1.5),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        minWidth: 180,
+                        height: 40,
+                        child: Text('Login'),
+                        elevation: 15,
+                        onPressed: _onLogin,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                          onTap: _onRegister,
+                          child: Text('Register New Account',
+                              style: TextStyle(fontSize: 15))),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      GestureDetector(
+                          onTap: _onForgot,
+                          child: Text('Forgot Password',
+                              style: TextStyle(fontSize: 15))),
                     ],
-                  ),
-                  MaterialButton(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1.5),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    minWidth: 180,
-                    height: 40,
-                    child: Text('Login'),
-                    elevation: 15,
-                    onPressed: _onLogin,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  GestureDetector(
-                      onTap: _onRegister,
-                      child: Text('Register New Account',
-                          style: TextStyle(fontSize: 15))),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  GestureDetector(
-                      onTap: _onForgot,
-                      child: Text('Forgot Password',
-                          style: TextStyle(fontSize: 15))),
-                ],
-              ))),
-        )
+                  ))),
+            ))
       ])),
     );
   }

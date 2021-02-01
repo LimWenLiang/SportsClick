@@ -35,17 +35,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
             title: Text('My Post', style: TextStyle(color: Colors.black)),
             backgroundColor: Colors.transparent,
             elevation: 25.0,
-            actions: <Widget>[
-              Flexible(
-                child: IconButton(
-                  icon: Icon(Icons.refresh),
-                  iconSize: 24,
-                  onPressed: () {
-                    _loadPost();
-                  },
-                ),
-              ),
-            ]),
+            actions: <Widget>[]),
         extendBodyBehindAppBar: true,
         body: Stack(children: <Widget>[
           Container(
@@ -212,7 +202,8 @@ class _UserPostScreenState extends State<UserPostScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) => EditPostScreen(post: post, user: widget.user)));
+            builder: (BuildContext context) =>
+                EditPostScreen(post: post, user: widget.user)));
   }
 
   void _deletePostDialog(int index) {

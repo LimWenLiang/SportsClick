@@ -33,7 +33,7 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
               style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.transparent,
           elevation: 20.0),
-      extendBodyBehindAppBar: false,
+      extendBodyBehindAppBar: true,
       body: Stack(children: <Widget>[
         Container(
           decoration: BoxDecoration(
@@ -48,51 +48,117 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
           Colors.white60,
           Colors.white54
         ]))),
-        Column(children: <Widget>[
-          Container(
-              height: screenHeight / 1.6,
-              width: screenWidth / 1.1,
-              child: CachedNetworkImage(
-                  imageUrl:
-                      "http://itprojectoverload.com/sportsclick/images/${widget.center.centerimage}.jpg",
-                  fit: BoxFit.scaleDown,
-                  placeholder: (context, url) =>
-                      new CircularProgressIndicator(),
-                  errorWidget: (context, url, error) =>
-                      new Icon(Icons.broken_image, size: screenWidth / 3))),
-          courtList == null
-              ? Flexible(
-                  child: Container(
-                  child: Center(
-                    child: Text(_titleCenter,
+        Padding(
+          padding: EdgeInsets.only(top: 80, left: 10, right: 10, bottom: 20),
+          child: SingleChildScrollView(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Container(
+                    height: screenHeight / 2.8,
+                    width: screenWidth / 1.0,
+                    child: CachedNetworkImage(
+                        imageUrl:
+                            "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${widget.center.centerimage}.jpg",
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            new CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => new Icon(
+                            Icons.broken_image,
+                            size: screenWidth / 3))),
+                SizedBox(height: 20),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Phone Number: "),
+                          TextSpan(
+                              text: widget.center.centerphone,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
+                Row(children: [
+                  RichText(
+                      textAlign: TextAlign.left,
+                      text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 17,
+                          ),
+                          children: [
+                            TextSpan(text: "Venue: "),
+                            TextSpan(
+                                text: widget.center.centerlocation,
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ])),
+                  GestureDetector(
+                    onTap: _onLocation,
+                    child: Row(children: [
+                      Icon(Icons.location_on_outlined),
+                    ]),
                   ),
-                ))
-              : Flexible(
-                  child: GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: (screenWidth / screenHeight) / 0.25,
-                  children: List.generate(courtList.length, (index) {
-                    return Padding(
-                        padding: EdgeInsets.all(1),
-                        child: Card(
-                          child: InkWell(
-                              //onTap: () => _loadCourtDetail(index), //pass parameter need "() =>"
-                              child: Column(
-                                children: [
-                                  Text("Court Type: " +
-                                      courtList[index]['courttype']),
-                                  Text("Price per Hour: RM" +
-                                      courtList[index]['courtprice']),
-                                  Text("Quantity: " +
-                                      courtList[index]['courtqty']),
-                                ],
-                              )),
-                        ));
-                  }),
-                )),
-        ]),
+                ]),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Open Time : "),
+                          TextSpan(
+                              text: widget.center.centeropentime,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Close Time : "),
+                          TextSpan(
+                              text: widget.center.centerclosetime,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Book Price/hour : "),
+                          TextSpan(
+                              text: "RM" + widget.center.centerprice,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Off Day: "),
+                          TextSpan(
+                              text: widget.center.centeroffday,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
+                Text("Remarks: ", style: TextStyle(fontSize: 17)),
+                Text(widget.center.centerremarks,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+              ])),
+        )
       ]),
     );
   }
@@ -119,4 +185,7 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
     });
   }
 
+  void _onLocation() {
+    print("Location");
+  }
 }

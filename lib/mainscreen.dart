@@ -1,13 +1,15 @@
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:sportsclick/postscreen.dart';
+
 import 'addpostscreen.dart';
+import 'addsportcenterscreen.dart';
 import 'loginscreen.dart';
 import 'sportscreen.dart';
-import 'userpostscreen.dart';
 import 'user.dart';
+import 'userpostscreen.dart';
 
 class MainScreen extends StatefulWidget {
   final String email;
@@ -18,316 +20,173 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List postList, userList, postUserList;
-  String _titleCenter = "Loading Post...";
+  String _appBarName;
+  int _selectedIndex = 0;
+  List<Widget> _widgetOptions;
   String username = "Loading Username";
-  double screenHeight, screenWidth;
-  DateTime date;
+  List userList;
 
   @override
   void initState() {
-    super.initState();
     _loadUser();
-    _loadPost();
+    _onItemTapped(_selectedIndex);
+    _widgetOptions = [
+      PostScreen(email: widget.email),
+      SportScreen(email: widget.email),
+    ];
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(
-          title: Text('SportsClick', style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.transparent,
-          elevation: 25.0,
-          actions: <Widget>[
-            Flexible(
-              child: IconButton(
-                icon: Icon(Icons.add_circle_outline),
-                iconSize: 24,
-                onPressed: () {
-                  _addPostScreen();
-                },
-              ),
+      appBar: AppBar(
+        title: Text(_appBarName, style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.transparent,
+        elevation: 25.0,
+        actions: <Widget>[
+          Flexible(
+            child: IconButton(
+              icon: Icon(Icons.add_circle_outline),
+              iconSize: 24,
+              onPressed: () {
+                _onAddButton(_selectedIndex);
+              },
             ),
-          ],
-        ),
-        extendBodyBehindAppBar: true,
-        drawer: Container(
-            width: 300,
-            child: Drawer(
-              child: ListView(
-                // Important: Remove any padding from the ListView.
-                padding: EdgeInsets.zero,
-                children: <Widget>[
-                  DrawerHeader(
-                    child: Stack(
-                      children: <Widget>[
-                        // Stroked text as border.
-                        Positioned(
-                            bottom: 12.0,
-                            right: 5.0,
-                            child: Container(
-                                child: Stack(children: [
-                              Text(
-                                username,
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  foreground: Paint()
-                                    ..style = PaintingStyle.stroke
-                                    ..strokeWidth = 6
-                                    ..color = Colors.black,
-                                ),
-                              ),
-                              // Solid text as fill.
-                              Text(
-                                username,
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ])))
-                      ],
-                    ),
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage("assets/images/background.png"),
-                            fit: BoxFit.cover)),
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.home),
-                        SizedBox(width: 20),
-                        Text('My Post'),
-                      ],
-                    ),
-                    onTap: () {
-                      //Navigator.pop(context);
-                      _editPostScreen();
-                      //_askLogin(widget.email);
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.sports_soccer),
-                        SizedBox(width: 20),
-                        Text('Sport Center'),
-                      ],
-                    ),
-                    onTap: () {
-                      //Navigator.pop(context);
-                      //_askLogin(widget.email);
-                      _onSportScreen();
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.person),
-                        SizedBox(width: 20),
-                        Text('Profile'),
-                      ],
-                    ),
-                    onTap: () {
-                      //Navigator.pop(context);
-                      //_askLogin(widget.email);
-                    },
-                  ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        Icon(Icons.logout),
-                        SizedBox(width: 20),
-                        Text('Logout'),
-                      ],
-                    ),
-                    onTap: () {
-                      //Navigator.pop(context);
-                      _onLogout();
-                    },
-                  ),
-                ],
-              ),
-            )),
-        body: Stack(children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/images/background.png'),
-                    fit: BoxFit.cover)),
           ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: <Color>[
-              Colors.white54,
-              Colors.white60,
-              Colors.white54
-            ])),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Discover',
           ),
-          Column(children: [
-            postList == null
-                ? Flexible(
-                    child: Container(
-                    child: Center(
-                      child: Text(_titleCenter,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                    ),
-                  ))
-                : Flexible(
-                    child: GridView.count(
-                    crossAxisCount: 1,
-                    childAspectRatio: (screenWidth / screenHeight) / 0.6,
-                    children: List.generate(postList.length, (index) {
-                      return Padding(
-                          padding: EdgeInsets.only(top: 10, bottom: 10),
-                          child: Card(
-                            elevation: 0,
-                            color: Colors.transparent,
-                            child: SingleChildScrollView(
-                                child: InkWell(
-                                    onTap: () => _loadSportCenterDetail(
-                                        index), //pass parameter need "() =>"
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RichText(
-                                            textAlign: TextAlign.left,
-                                            text: TextSpan(
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 17,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                children: [
-                                                  TextSpan(
-                                                      text: postList[index]
-                                                          ['posttitle'])
-                                                ])),
-                                        RichText(
-                                            text: TextSpan(
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 17,
-                                                ),
-                                                children: [
-                                              TextSpan(
-                                                  text: postList[index]
-                                                      ['postdesc'])
-                                            ])),
-                                        Container(
-                                            height: screenHeight / 2.8,
-                                            width: screenWidth / 1.0,
-                                            child: CachedNetworkImage(
-                                                imageUrl:
-                                                    "http://itprojectoverload.com/sportsclick/images/postimages/${postList[index]['postimage']}.jpg",
-                                                fit: BoxFit.cover,
-                                                placeholder: (context, url) =>
-                                                    new CircularProgressIndicator(),
-                                                errorWidget: (context, url,
-                                                        error) =>
-                                                    new Icon(Icons.broken_image,
-                                                        size:
-                                                            screenWidth / 3))),
-                                        RichText(
-                                            textAlign: TextAlign.left,
-                                            text: TextSpan(
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 17,
-                                                ),
-                                                children: [
-                                                  TextSpan(text: "Posted by: "),
-                                                  TextSpan(
-                                                      text: postList[index]
-                                                          ['name'],
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ])),
-                                        Text(
-                                            "Date/Time Posted: " +
-                                                _dateTime(index),
-                                            style: TextStyle(fontSize: 10)),
-                                      ],
-                                    ))),
-                          ));
-                    }),
-                  ))
-          ]),
-        ]));
+          BottomNavigationBarItem(
+            icon: Icon(Icons.sports_soccer),
+            label: 'Sport Center',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+      drawer: Container(
+          width: 300,
+          child: Drawer(
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  child: Stack(
+                    children: <Widget>[
+                      // Stroked text as border.
+                      Positioned(
+                          bottom: 12.0,
+                          right: 5.0,
+                          child: Container(
+                              child: Stack(children: [
+                            Text(
+                              username,
+                              style: TextStyle(
+                                fontSize: 25,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 6
+                                  ..color = Colors.black,
+                              ),
+                            ),
+                            // Solid text as fill.
+                            Text(
+                              username,
+                              style: TextStyle(
+                                fontSize: 25,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ])))
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/images/background.png"),
+                          fit: BoxFit.cover)),
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.home),
+                      SizedBox(width: 20),
+                      Text('My Post'),
+                    ],
+                  ),
+                  onTap: () {
+                    //Navigator.pop(context);
+                    _editPostScreen();
+                    //_askLogin(widget.email);
+                  },
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.sports_soccer),
+                      SizedBox(width: 20),
+                      Text('My Sport Center'),
+                    ],
+                  ),
+                  onTap: () {
+                    //Navigator.pop(context);
+                    //_askLogin(widget.email);
+                  },
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.person),
+                      SizedBox(width: 20),
+                      Text('Profile'),
+                    ],
+                  ),
+                  onTap: () {
+                    //Navigator.pop(context);
+                    //_askLogin(widget.email);
+                  },
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.logout),
+                      SizedBox(width: 20),
+                      Text('Logout'),
+                    ],
+                  ),
+                  onTap: () {
+                    //Navigator.pop(context);
+                    _onLogout();
+                  },
+                ),
+              ],
+            ),
+          )),
+    );
   }
 
-  String _dateTime(int index) {
-    String s = postList[index]['postdate'];
-    String result = s.substring(0, s.indexOf('.'));
-    return result;
-  }
-
-  void _loadPost() {
-    print("Load Post");
-    http.post("http://itprojectoverload.com/sportsclick/php/load_post.php",
-        body: {}).then((res) {
-      print(res.body);
-      if (res.body == "nodata") {
-        postList = null;
-        setState(() {
-          _titleCenter = "No Post Found";
-        });
-      } else {
-        setState(() {
-          var jsondata = json.decode(res.body);
-          postList = jsondata["post"];
-        });
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      switch (index) {
+        case 0:
+          _appBarName = "Discover";
+          break;
+        case 1:
+          _appBarName = "Sport Center";
+          break;
       }
-    }).catchError((err) {
-      print(err);
     });
-  }
-
-  _loadSportCenterDetail(int index) {}
-
-  Future<void> _addPostScreen() async {
-    User user = new User(
-      name: userList[0]['name'],
-      email: userList[0]['email'],
-      phone: userList[0]['phone'],
-    );
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => AddPostScreen(user: user)));
-    _loadPost();
-  }
-
-  Future<void> _editPostScreen() async {
-    User user = new User(
-      name: userList[0]['name'],
-      email: userList[0]['email'],
-      phone: userList[0]['phone'],
-    );
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => UserPostScreen(user: user)));
-    _loadPost();
-  }
-
-  void _onSportScreen() {
-    User user = new User(
-      name: userList[0]['name'],
-      email: userList[0]['email'],
-      phone: userList[0]['phone'],
-    );
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => SportScreen(user: user)));
   }
 
   void _loadUser() {
@@ -350,6 +209,54 @@ class _MainScreenState extends State<MainScreen> {
     }).catchError((err) {
       print(err);
     });
+  }
+
+  void _onAddButton(int index) {
+    switch (index) {
+      case 0:
+        _addPostScreen();
+        break;
+      case 1:
+        _addCenterScreen();
+        break;
+    }
+  }
+
+  Future<void> _addPostScreen() async {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => AddPostScreen(user: user)));
+  }
+
+  void _addCenterScreen() {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                AddSportCenterScreen(user: user)));
+  }
+
+  Future<void> _editPostScreen() async {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => UserPostScreen(user: user)));
   }
 
   void _onLogout() {
@@ -394,40 +301,5 @@ class _MainScreenState extends State<MainScreen> {
             ],
           );
         });
-  }
-
-  void _askLogin(String email) {
-    if (email.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            // return object of type Dialog
-            return AlertDialog(
-              title: new Text(
-                "Please Login Account to continue.",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              actions: <Widget>[
-                // usually buttons at the bottom of the dialog
-                new FlatButton(
-                  child: new Text(
-                    "Login Account",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => LoginScreen()));
-                  },
-                ),
-              ],
-            );
-          });
-    }
   }
 }

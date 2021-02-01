@@ -8,8 +8,8 @@ import 'sportcenterdetail.dart';
 import 'user.dart';
 
 class SportScreen extends StatefulWidget {
-  final User user;
-  const SportScreen({Key key, this.user}) : super(key: key);
+  final String email;
+  const SportScreen({Key key, this.email}) : super(key: key);
 
   @override
   _SportScreenState createState() => _SportScreenState();
@@ -19,6 +19,8 @@ class _SportScreenState extends State<SportScreen> {
   List centerList;
   double screenHeight, screenWidth;
   String _titleCenter = "Loading Sport Center...";
+  String username = "Loading Username";
+  List userList;
 
   @override
   void initState() {
@@ -30,43 +32,25 @@ class _SportScreenState extends State<SportScreen> {
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Sport Center', style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.transparent,
-          elevation: 20.0,
-          actions: <Widget>[
-            Flexible(
-              child: IconButton(
-                icon: Icon(Icons.add_circle_outline),
-                iconSize: 24,
-                onPressed: () {
-                  _addCenterScreen();
-                },
-              ),
-            ),
-          ],
-        ),
-        extendBodyBehindAppBar: true,
-        body: Stack(children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/images/background.png'),
-                    fit: BoxFit.cover)),
-          ),
-          Center(
-              child: Container(
-            alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: <Color>[
-              Colors.white54,
-              Colors.white60,
-              Colors.white54
-            ])),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: <
-                    Widget>[
+    return Stack(children: <Widget>[
+      Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover)),
+      ),
+      Center(
+          child: Container(
+        alignment: Alignment.bottomCenter,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(colors: <Color>[
+          Colors.white54,
+          Colors.white60,
+          Colors.white54
+        ])),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
               centerList == null
                   ? Flexible(
                       child: Container(
@@ -115,8 +99,8 @@ class _SportScreenState extends State<SportScreen> {
                       }),
                     ))
             ]),
-          )),
-        ]));
+      )),
+    ]);
   }
 
   void _loadSportCenter() {
@@ -161,11 +145,39 @@ class _SportScreenState extends State<SportScreen> {
                 SportCenterDetail(center: sportCenter)));
   }
 
+  void _loadUser() {
+    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
+        body: {
+          "email": widget.email,
+        }).then((res) {
+      print(res.body);
+      if (res.body == "nodata") {
+        setState(() {
+          username = "Guest";
+        });
+      } else {
+        setState(() {
+          var jsondata = json.decode(res.body);
+          userList = jsondata["user"];
+          username = userList[0]['name'];
+        });
+      }
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
   void _addCenterScreen() {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) =>
-                AddSportCenterScreen(user: widget.user)));
+                AddSportCenterScreen(user: user)));
   }
 }

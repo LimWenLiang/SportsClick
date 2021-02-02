@@ -7,20 +7,21 @@ import 'addsportcenterscreen.dart';
 import 'sportcenterdetail.dart';
 import 'user.dart';
 
-class SportScreen extends StatefulWidget {
+class SportCenterScreen extends StatefulWidget {
   final String email;
-  const SportScreen({Key key, this.email}) : super(key: key);
+  const SportCenterScreen({Key key, this.email}) : super(key: key);
 
   @override
-  _SportScreenState createState() => _SportScreenState();
+  _SportCenterScreenState createState() => _SportCenterScreenState();
 }
 
-class _SportScreenState extends State<SportScreen> {
+class _SportCenterScreenState extends State<SportCenterScreen> {
   List centerList;
   double screenHeight, screenWidth;
   String _titleCenter = "Loading Sport Center...";
   String username = "Loading Username";
   List userList;
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -32,25 +33,28 @@ class _SportScreenState extends State<SportScreen> {
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
-    return Stack(children: <Widget>[
-      Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/images/background.png'),
-                fit: BoxFit.cover)),
-      ),
-      Center(
-          child: Container(
-        alignment: Alignment.bottomCenter,
-        decoration: BoxDecoration(
-            gradient: LinearGradient(colors: <Color>[
-          Colors.white54,
-          Colors.white60,
-          Colors.white54
-        ])),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+    return RefreshIndicator(
+        key: refreshKey,
+        onRefresh: refresh,
+        child: Stack(children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/images/background.png'),
+                    fit: BoxFit.cover)),
+          ),
+          Center(
+              child: Container(
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: <Color>[
+              Colors.white54,
+              Colors.white60,
+              Colors.white54
+            ])),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: <
+                    Widget>[
               centerList == null
                   ? Flexible(
                       child: Container(
@@ -99,8 +103,8 @@ class _SportScreenState extends State<SportScreen> {
                       }),
                     ))
             ]),
-      )),
-    ]);
+          )),
+        ]));
   }
 
   void _loadSportCenter() {
@@ -122,6 +126,14 @@ class _SportScreenState extends State<SportScreen> {
     }).catchError((err) {
       print(err);
     });
+  }
+
+  Future<Null> refresh() async {
+    refreshKey.currentState?.show(atTop: false);
+    await Future.delayed(Duration(seconds: 1));
+    _loadSportCenter();
+
+    return null;
   }
 
   _loadSportCenterDetail(int index) {
@@ -173,7 +185,7 @@ class _SportScreenState extends State<SportScreen> {
       email: userList[0]['email'],
       phone: userList[0]['phone'],
     );
-    
+
     Navigator.push(
         context,
         MaterialPageRoute(

@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'listitem.dart';
 import 'user.dart';
+import 'package:http/http.dart' as http;
+import 'package:date_format/date_format.dart';
 
 class AddSportCenterScreen extends StatefulWidget {
   final User user;
@@ -19,20 +21,21 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   String _titleCenter = "Loading Sport Center...";
   File _image;
   String pathAsset = 'assets/images/camera.png';
-  String _title, _description;
   int titleCharLength = 50;
   int descCharLength = 100;
 
+  String _name, _phone, _location, _remarks;
   final TextEditingController _nmcontroller = TextEditingController();
   final TextEditingController _hpcontroller = TextEditingController();
   final TextEditingController _loccontroller = TextEditingController();
   final TextEditingController _rmcontroller = TextEditingController();
 
-  TimeOfDay _openTime = TimeOfDay(hour: 09, minute: 00);
-  TimeOfDay _closeTime = TimeOfDay(hour: 00, minute: 00);
+  TimeOfDay _selectedOpenTime = TimeOfDay(hour: 09, minute: 00);
+  TimeOfDay _selectedCloseTime = TimeOfDay(hour: 00, minute: 00);
 
-  String selectedPrice = "RM4.00";
-  String selectedOffDay = "No Off Day";
+  String _selectedPrice = "RM4.00";
+  String _selectedOffDay = "No Off Day";
+  String _openTime, _closeTime;
 
   var priceList = {
     "RM4.00",
@@ -141,7 +144,8 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                           SizedBox(width: 18),
                           GestureDetector(
                               onTap: _selectOpenTime,
-                              child: Text('${_openTime.format(context)}',
+                              child: Text(
+                                  '${_selectedOpenTime.format(context)}',
                                   style: TextStyle(fontSize: 16))),
                         ],
                       ),
@@ -153,7 +157,8 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                           SizedBox(width: 18),
                           GestureDetector(
                               onTap: _selectCloseTime,
-                              child: Text('${_closeTime.format(context)}',
+                              child: Text(
+                                  '${_selectedCloseTime.format(context)}',
                                   style: TextStyle(fontSize: 16))),
                         ],
                       ),
@@ -167,11 +172,11 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                           Container(
                               height: 50,
                               child: DropdownButton(
-                                value: selectedPrice,
+                                value: _selectedPrice,
                                 onChanged: (newValue) {
                                   setState(() {
-                                    selectedPrice = newValue;
-                                    print("Booking Price: " + selectedPrice);
+                                    _selectedPrice = newValue;
+                                    print("Booking Price: " + _selectedPrice);
                                   });
                                 },
                                 items: priceList.map((selectedPrice) {
@@ -193,11 +198,11 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                           Container(
                               height: 50,
                               child: DropdownButton(
-                                value: selectedOffDay,
+                                value: _selectedOffDay,
                                 onChanged: (newValue) {
                                   setState(() {
-                                    selectedOffDay = newValue;
-                                    print("Off Day: " + selectedOffDay);
+                                    _selectedOffDay = newValue;
+                                    print("Off Day: " + _selectedOffDay);
                                   });
                                 },
                                 items: offDayList.map((selectedOffDay) {
@@ -358,31 +363,121 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     });
   }
 
-  void _addNewCenterDialog() {}
+  void _addNewCenterDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          // return object of type Dialog
+          return AlertDialog(
+            title: new Text(
+              "Add New Sport Center? ",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text(
+                  "Yes",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _onAddSportCenter();
+                },
+              ),
+              new FlatButton(
+                child: new Text(
+                  "No",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   void _selectOpenTime() async {
-    final TimeOfDay newOpenTime = await showTimePicker(
+    final TimeOfDay pickOpenTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: 00, minute: 00),
+      initialTime: _selectedOpenTime,
       initialEntryMode: TimePickerEntryMode.input,
     );
-    if (newOpenTime != null) {
+    if (pickOpenTime != null) {
       setState(() {
-        _openTime = newOpenTime;
+        _selectedOpenTime = pickOpenTime;
       });
     }
   }
 
   void _selectCloseTime() async {
-    final TimeOfDay newCloseTime = await showTimePicker(
+    final TimeOfDay pickCloseTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: 00, minute: 00),
+      initialTime: _selectedCloseTime,
       initialEntryMode: TimePickerEntryMode.input,
     );
-    if (newCloseTime != null) {
+    if (pickCloseTime != null) {
       setState(() {
-        _closeTime = newCloseTime;
+        _selectedCloseTime = pickCloseTime;
       });
     }
+  }
+
+  void _onAddSportCenter() {
+    _name = _nmcontroller.text;
+    _phone = _hpcontroller.text;
+    _location = _loccontroller.text;
+    _remarks = _rmcontroller.text;
+    _openTime = _selectedOpenTime.format(context);
+    _closeTime = _selectedCloseTime.format(context);
+
+    final dateTime = DateTime.now();
+    String base64Image = base64Encode(_image.readAsBytesSync());
+    print(base64Image);
+
+    http.post(
+        "http://itprojectoverload.com/sportsclick/php/add_sportcenter.php",
+        body: {
+          "centername": _name,
+          "centerphone": _phone,
+          "centerlocation": _location,
+          "centeropentime": _openTime,
+          "centerclosetime": _closeTime,
+          "centerprice": _selectedPrice,
+          "centeroffday": _selectedOffDay,
+          "centerremarks": _remarks,
+          "centerimage":
+              widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
+          "useremail": widget.user.email,
+          "encoded_string": base64Image,
+        }).then((res) {
+      print(res.body);
+      if (res.body == "success") {
+        Toast.show(
+          "Add Success",
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.CENTER,
+        );
+        Navigator.pop(context);
+      } else {
+        Toast.show(
+          "Add Failed",
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.CENTER,
+        );
+      }
+    }).catchError((err) {
+      print(err);
+    });
   }
 }

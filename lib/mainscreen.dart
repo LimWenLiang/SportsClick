@@ -7,9 +7,10 @@ import 'package:sportsclick/postscreen.dart';
 import 'addpostscreen.dart';
 import 'addsportcenterscreen.dart';
 import 'loginscreen.dart';
-import 'sportscreen.dart';
+import 'sportcenterscreen.dart';
 import 'user.dart';
 import 'userpostscreen.dart';
+import 'usersportcenterscreen.dart';
 
 class MainScreen extends StatefulWidget {
   final String email;
@@ -32,7 +33,7 @@ class _MainScreenState extends State<MainScreen> {
     _onItemTapped(_selectedIndex);
     _widgetOptions = [
       PostScreen(email: widget.email),
-      SportScreen(email: widget.email),
+      SportCenterScreen(email: widget.email),
     ];
     super.initState();
   }
@@ -126,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   onTap: () {
                     //Navigator.pop(context);
-                    _editPostScreen();
+                    _userPostScreen();
                     //_askLogin(widget.email);
                   },
                 ),
@@ -139,6 +140,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   onTap: () {
+                    _userSportCenterScreen();
                     //Navigator.pop(context);
                     //_askLogin(widget.email);
                   },
@@ -234,20 +236,20 @@ class _MainScreenState extends State<MainScreen> {
             builder: (BuildContext context) => AddPostScreen(user: user)));
   }
 
-  void _addCenterScreen() {
+  Future<void> _addCenterScreen() async {
     User user = new User(
       name: userList[0]['name'],
       email: userList[0]['email'],
       phone: userList[0]['phone'],
     );
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) =>
                 AddSportCenterScreen(user: user)));
   }
 
-  Future<void> _editPostScreen() async {
+  Future<void> _userPostScreen() async {
     User user = new User(
       name: userList[0]['name'],
       email: userList[0]['email'],
@@ -257,6 +259,19 @@ class _MainScreenState extends State<MainScreen> {
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => UserPostScreen(user: user)));
+  }
+
+  Future<void> _userSportCenterScreen() async {
+    User user = new User(
+      name: userList[0]['name'],
+      email: userList[0]['email'],
+      phone: userList[0]['phone'],
+    );
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                UserSportCenterScreen(user: user)));
   }
 
   void _onLogout() {

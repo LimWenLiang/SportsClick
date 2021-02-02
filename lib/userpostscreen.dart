@@ -129,7 +129,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
                                           ),
                                           minWidth: 130,
                                           height: 40,
-                                          child: Text('Edit Post'),
+                                          child: Text('Edit'),
                                           elevation: 15,
                                           onPressed: () =>
                                               _editPostDialog(index),
@@ -143,7 +143,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
                                           ),
                                           minWidth: 130,
                                           height: 40,
-                                          child: Text('Delete Post'),
+                                          child: Text('Delete'),
                                           elevation: 15,
                                           onPressed: () =>
                                               _deletePostDialog(index),
@@ -168,7 +168,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
   void _loadPost() {
     print("Load Post");
     http.post(
-        "http://itprojectoverload.com/sportsclick/php/load_personal_post.php",
+        "http://itprojectoverload.com/sportsclick/php/load_user_post.php",
         body: {
           "useremail": widget.user.email,
         }).then((res) {

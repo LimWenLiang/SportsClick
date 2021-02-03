@@ -1,12 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sportsclick/postscreen.dart';
-
 import 'addpostscreen.dart';
 import 'addsportcenterscreen.dart';
 import 'loginscreen.dart';
+import 'searchscreen.dart';
 import 'sportcenterscreen.dart';
 import 'user.dart';
 import 'userpostscreen.dart';
@@ -21,18 +20,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String _appBarName;
+  double screenHeight, screenWidth;
+  String _appBarName, _titlecenter = "Loading Post...";
   int _selectedIndex = 0;
   List<Widget> _widgetOptions;
   String username = "Loading Username";
-  List userList;
+  List userList, postList;
+  TextEditingController _posttitlecontroller = TextEditingController();
+  String posttitle;
 
   @override
   void initState() {
     _loadUser();
     _onItemTapped(_selectedIndex);
     _widgetOptions = [
-      PostScreen(email: widget.email),
+      PostScreen(email: widget.email, posttitle: posttitle),
       SportCenterScreen(email: widget.email),
     ];
     super.initState();
@@ -40,6 +42,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text(_appBarName, style: TextStyle(color: Colors.black)),
@@ -116,6 +120,21 @@ class _MainScreenState extends State<MainScreen> {
                       image: DecorationImage(
                           image: AssetImage("assets/images/background.png"),
                           fit: BoxFit.cover)),
+                ),
+                ListTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.search),
+                      SizedBox(width: 20),
+                      Text('Search'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => SearchScreen()));
+                  },
                 ),
                 ListTile(
                   title: Row(

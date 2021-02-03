@@ -5,8 +5,9 @@ import 'package:http/http.dart' as http;
 import 'loginscreen.dart';
 
 class PostScreen extends StatefulWidget {
+  final String posttitle;
   final String email;
-  const PostScreen({Key key, this.email}) : super(key: key);
+  const PostScreen({Key key, this.email, this.posttitle}) : super(key: key);
 
   @override
   _PostScreenState createState() => _PostScreenState();

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -66,118 +65,92 @@ class _EditPostScreenState extends State<EditPostScreen> {
                 Colors.white60,
                 Colors.white54
               ])),
-              child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 80, left: 10, right: 10, bottom: 20),
-                  child: SingleChildScrollView(
-                      child: Column(children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Container(
-                          height: screenHeight / 3.7,
-                          width: screenWidth / 2.4,
-                          child: CachedNetworkImage(
-                              imageUrl:
-                                  "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg",
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                                  new CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => new Icon(
-                                  Icons.broken_image,
-                                  size: screenWidth / 3))),
-                      SizedBox(width: 5),
-                      Container(
-                          width: screenWidth / 2.4,
+              child: Center(
+                  child: Padding(
+                      padding: EdgeInsets.only(
+                          top: 80, left: 10, right: 10, bottom: 20),
+                      child: SingleChildScrollView(
                           child: Column(children: [
-                            Row(children: [
-                              Flexible(
-                                  child: Text(
-                                      "Old Title: " + widget.post.posttitle))
-                            ]),
-                            Row(children: [
-                              Flexible(
-                                  child: Text("Old Description: " +
-                                      widget.post.postdesc))
-                            ]),
-                          ])),
-                    ]),
-                    SizedBox(height: 7.5),
-                    Divider(height: 1, color: Colors.black),
-                    SizedBox(height: 7.5),
-                    GestureDetector(
-                        onTap: () => {_onPictureSelection()},
-                        child: Container(
-                          height: screenHeight / 3.2,
-                          width: screenWidth / 1.8,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: _image == null
-                                  ? NetworkImage(
-                                      "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg")
-                                  : FileImage(_image),
-                              fit: BoxFit.cover,
-                            ),
-                            border: Border.all(
-                              width: 3.0,
-                              color: Colors.grey,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                    5.0) //         <--- border radius here
+                        GestureDetector(
+                            onTap: () => {_onPictureSelection()},
+                            child: Container(
+                              height: screenHeight / 2.8,
+                              width: screenWidth / 1.0,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: _image == null
+                                      ? NetworkImage(
+                                          "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg")
+                                      : FileImage(_image),
+                                  fit: BoxFit.cover,
                                 ),
+                                border: Border.all(
+                                  width: 2.0,
+                                  color: Colors.deepPurple
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                        5.0) //         <--- border radius here
+                                    ),
+                              ),
+                            )),
+                        SizedBox(height: 5),
+                        Text("Click camera to change new picture",
+                            style:
+                                TextStyle(fontSize: 15.0, color: Colors.black)),
+                        SizedBox(height: 5),
+                        TextField(
+                          controller: _titlecontroller,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: 'New Title',
+                            icon: Icon(Icons.title),
+                            hintText: 'Maximum of 50 characters',
                           ),
-                        )),
-                    SizedBox(height: 5),
-                    Text("Click camera to change new picture",
-                        style: TextStyle(fontSize: 15.0, color: Colors.black)),
-                    SizedBox(height: 5),
-                    TextField(
-                      controller: _titlecontroller,
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        labelText: 'New Title',
-                        icon: Icon(Icons.title),
-                        hintText: 'Maximum of 50 characters',
-                      ),
-                      onChanged: _onChangedTitle,
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      Text(
-                        "$titleCharLength character remaining",
-                        textAlign: TextAlign.right,
-                        style:
-                            TextStyle(fontSize: 10, color: Colors.deepPurple),
-                      ),
-                    ]),
-                    TextField(
-                      controller: _descriptioncontroller,
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        labelText: 'New Description',
-                        icon: Icon(Icons.description),
-                        hintText: 'Maximum of 100 characters',
-                      ),
-                      onChanged: _onChangedDesc,
-                    ),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      Text(
-                        "$descCharLength character remaining",
-                        textAlign: TextAlign.right,
-                        style:
-                            TextStyle(fontSize: 10, color: Colors.deepPurple),
-                      ),
-                    ]),
-                    SizedBox(height: 10),
-                    MaterialButton(
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1.5),
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      minWidth: 180,
-                      height: 40,
-                      child: Text('Edit Post'),
-                      elevation: 15,
-                      onPressed: _editPostDialog,
-                    ),
-                  ])))),
+                          onChanged: _onChangedTitle,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "$titleCharLength character remaining",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 10, color: Colors.deepPurple),
+                              ),
+                            ]),
+                        TextField(
+                          controller: _descriptioncontroller,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: 'New Description',
+                            icon: Icon(Icons.description),
+                            hintText: 'Maximum of 100 characters',
+                          ),
+                          onChanged: _onChangedDesc,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "$descCharLength character remaining",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                    fontSize: 10, color: Colors.deepPurple),
+                              ),
+                            ]),
+                        SizedBox(height: 10),
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(width: 1.5),
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          minWidth: 180,
+                          height: 40,
+                          child: Text('Edit Post'),
+                          elevation: 15,
+                          onPressed: _editPostDialog,
+                        ),
+                      ]))))),
         ]));
   }
 
@@ -304,7 +277,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
 
   void _editPostDialog() {
     _title = _titlecontroller.text;
-    _description = _descriptioncontroller.text;
 
     showDialog(
         context: context,

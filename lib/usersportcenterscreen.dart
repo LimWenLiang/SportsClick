@@ -159,7 +159,7 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
     });
   }
 
-  void _editSportCenterScreen(int index) {
+  Future<void> _editSportCenterScreen(int index) async {
     SportCenter sportCenter = new SportCenter(
       centerid: centerList[index]['centerid'],
       centername: centerList[index]['centername'],
@@ -173,11 +173,12 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
       centerimage: centerList[index]['centerimage'],
       useremail: widget.user.email,
     );
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) =>
-                EditSportCenterScreen(sportCenter: sportCenter, user: widget.user)));
+            builder: (BuildContext context) => EditSportCenterScreen(
+                sportCenter: sportCenter, user: widget.user)));
+    _loadSportCenter();
   }
 
   void _deleteSportCenterDialog(int index) {
@@ -230,7 +231,8 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
   }
 
   void _deleteSportCenter(int index) {
-    http.post("https://itprojectoverload.com/sportsclick/php/delete_sportcenter.php",
+    http.post(
+        "https://itprojectoverload.com/sportsclick/php/delete_sportcenter.php",
         body: {
           "useremail": widget.user.email,
           "centerid": centerList[index]['centerid'],

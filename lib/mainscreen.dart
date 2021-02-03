@@ -148,19 +148,6 @@ class _MainScreenState extends State<MainScreen> {
                 ListTile(
                   title: Row(
                     children: [
-                      Icon(Icons.person),
-                      SizedBox(width: 20),
-                      Text('Profile'),
-                    ],
-                  ),
-                  onTap: () {
-                    //Navigator.pop(context);
-                    //_askLogin(widget.email);
-                  },
-                ),
-                ListTile(
-                  title: Row(
-                    children: [
                       Icon(Icons.logout),
                       SizedBox(width: 20),
                       Text('Logout'),

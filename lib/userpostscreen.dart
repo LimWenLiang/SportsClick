@@ -132,7 +132,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
                                           child: Text('Edit'),
                                           elevation: 15,
                                           onPressed: () =>
-                                              _editPostDialog(index),
+                                              _editPostScreen(index),
                                         ),
                                         SizedBox(width: 10),
                                         MaterialButton(
@@ -167,8 +167,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
 
   void _loadPost() {
     print("Load Post");
-    http.post(
-        "http://itprojectoverload.com/sportsclick/php/load_user_post.php",
+    http.post("http://itprojectoverload.com/sportsclick/php/load_user_post.php",
         body: {
           "useremail": widget.user.email,
         }).then((res) {
@@ -191,7 +190,7 @@ class _UserPostScreenState extends State<UserPostScreen> {
 
   _loadSportCenterDetail(int index) {}
 
-  void _editPostDialog(int index) {
+  Future<void> _editPostScreen(int index) async {
     Post post = new Post(
       postid: postList[index]['postid'],
       posttitle: postList[index]['posttitle'],
@@ -199,11 +198,12 @@ class _UserPostScreenState extends State<UserPostScreen> {
       postimage: postList[index]['postimage'],
       useremail: widget.user.email,
     );
-    Navigator.push(
+    await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (BuildContext context) =>
                 EditPostScreen(post: post, user: widget.user)));
+    _loadPost();
   }
 
   void _deletePostDialog(int index) {

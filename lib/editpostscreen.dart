@@ -24,14 +24,18 @@ class _EditPostScreenState extends State<EditPostScreen> {
   List postList, userList;
   String _titleCenter = "Loading Post...";
   String pathAsset = 'assets/images/camera.png';
-  final TextEditingController _titlecontroller = TextEditingController();
-  final TextEditingController _descriptioncontroller = TextEditingController();
-  String _title, _description;
+  TextEditingController _titlecontroller;
+  TextEditingController _descriptioncontroller;
+  String _title, _description, _currentImage = "";
   int titleCharLength = 50;
   int descCharLength = 100;
 
   @override
   void initState() {
+    _titlecontroller = TextEditingController(text: widget.post.posttitle);
+    _descriptioncontroller = TextEditingController(text: widget.post.postdesc);
+    _onChangedTitle(_titlecontroller.text);
+    _onChangedDesc(_descriptioncontroller.text);
     super.initState();
   }
 
@@ -107,7 +111,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: _image == null
-                                  ? AssetImage(pathAsset)
+                                  ? NetworkImage(
+                                      "http://itprojectoverload.com/sportsclick/images/postimages/${widget.post.postimage}.jpg")
                                   : FileImage(_image),
                               fit: BoxFit.cover,
                             ),
@@ -300,7 +305,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
   void _editPostDialog() {
     _title = _titlecontroller.text;
     _description = _descriptioncontroller.text;
-    print(userList[0]['name']);
 
     showDialog(
         context: context,
@@ -356,11 +360,25 @@ class _EditPostScreenState extends State<EditPostScreen> {
   }
 
   void _onEditPost() {
+    final dateTime = DateTime.now();
     _title = _titlecontroller.text;
     _description = _descriptioncontroller.text;
 
-    final dateTime = DateTime.now();
-    String base64Image = base64Encode(_image.readAsBytesSync());
+    print("Image" + _currentImage);
+
+    String base64Image = "";
+    try {
+      if (base64Encode(_image.readAsBytesSync()) != null) {
+        base64Image = base64Encode(_image.readAsBytesSync());
+        _currentImage =
+            widget.user.name + "-${dateTime.microsecondsSinceEpoch}";
+      } else {
+        _currentImage = widget.post.postimage;
+      }
+    } catch (Exception) {
+      print(Exception);
+    }
+
     print(base64Image);
     if (_validation(_title, _description)) {
       http.post("http://itprojectoverload.com/sportsclick/php/edit_post.php",
@@ -369,8 +387,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
             "posttitle": _title,
             "postdesc": _description,
             "useremail": widget.post.useremail,
-            "postimage":
-                widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
+            "postimage": _currentImage,
             "encoded_string": base64Image,
           }).then((res) {
         print(res.body);

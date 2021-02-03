@@ -135,7 +135,7 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
                           fontSize: 17,
                         ),
                         children: [
-                          TextSpan(text: "Book Price/hour : "),
+                          TextSpan(text: "Book Price (hour): "),
                           TextSpan(
                               text: "RM" + widget.center.centerprice,
                               style: TextStyle(fontWeight: FontWeight.bold)),

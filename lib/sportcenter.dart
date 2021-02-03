@@ -8,7 +8,8 @@ class SportCenter {
       centerprice,
       centeroffday,
       centerremarks,
-      centerimage;
+      centerimage,
+      useremail;
   SportCenter(
       {this.centerid,
       this.centername,
@@ -19,5 +20,6 @@ class SportCenter {
       this.centerprice,
       this.centeroffday,
       this.centerremarks,
-      this.centerimage});
+      this.centerimage,
+      this.useremail});
 }

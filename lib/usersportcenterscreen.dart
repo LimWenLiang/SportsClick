@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'editsportcenterscreen.dart';
+import 'sportcenter.dart';
 import 'user.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -105,7 +107,7 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
                                       child: Text('Edit'),
                                       elevation: 15,
                                       onPressed: () =>
-                                          _editSportCenterDialog(index),
+                                          _editSportCenterScreen(index),
                                     ),
                                     SizedBox(width: 10),
                                     MaterialButton(
@@ -157,7 +159,26 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
     });
   }
 
-  _editSportCenterDialog(int index) {}
+  void _editSportCenterScreen(int index) {
+    SportCenter sportCenter = new SportCenter(
+      centerid: centerList[index]['centerid'],
+      centername: centerList[index]['centername'],
+      centerphone: centerList[index]['centerphone'],
+      centerlocation: centerList[index]['centerlocation'],
+      centeropentime: centerList[index]['centeropentime'],
+      centerclosetime: centerList[index]['centerclosetime'],
+      centerprice: centerList[index]['centerprice'],
+      centeroffday: centerList[index]['centeroffday'],
+      centerremarks: centerList[index]['centerremarks'],
+      centerimage: centerList[index]['centerimage'],
+      useremail: widget.user.email,
+    );
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) =>
+                EditSportCenterScreen(sportCenter: sportCenter, user: widget.user)));
+  }
 
   void _deleteSportCenterDialog(int index) {
     print("Delete " + centerList[index]['centername']);

@@ -155,10 +155,12 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                           children: [
                             Icon(Icons.location_on_outlined),
                             SizedBox(width: 16),
-                            GestureDetector(
-                                onTap: _loadMapDialog,
-                                child: Text(_mapTitle,
-                                    style: TextStyle(fontSize: 16))),
+                            Flexible(
+                              child: GestureDetector(
+                                  onTap: _loadMapDialog,
+                                  child: Text(_mapTitle,
+                                      style: TextStyle(fontSize: 16))),
+                            )
                           ]),
                       SizedBox(height: 20),
                       Row(
@@ -409,7 +411,7 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0))),
                   title: Center(
-                    child: Text("Select New Delivery Location",
+                    child: Text("Select Your Location",
                         style: TextStyle(color: Colors.black, fontSize: 14)),
                   ),
                   //titlePadding: EdgeInsets.all(5),
@@ -444,12 +446,15 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                               borderRadius: BorderRadius.circular(5.0)),
                           //minWidth: 200,
                           height: 30,
-                          child: Text('Close'),
+                          child: Text('OK'),
                           color: Colors.deepPurple,
                           textColor: Colors.white,
                           elevation: 10,
                           onPressed: () => {
                             markers.clear(),
+                            setState(() {
+                              _mapTitle = _homeloc;
+                            }),
                             Navigator.of(context).pop(false),
                           },
                         ),
@@ -479,6 +484,8 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
           var addresses =
               await Geocoder.local.findAddressesFromCoordinates(coordinates);
           setState(() {
+            _latitude = _currentPosition.latitude.toStringAsFixed(7);
+            _longitude = _currentPosition.longitude.toStringAsFixed(7);
             var first = addresses.first;
             _homeloc = first.addressLine;
             if (_homeloc != null) {
@@ -558,6 +565,8 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   }
 
   void _addNewCenterDialog() {
+    print(_latitude);
+    print(_longitude);
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -642,7 +651,9 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
         body: {
           "centername": _name,
           "centerphone": _phone,
-          "centerlocation": _location,
+          "centerlocation": _mapTitle,
+          "centerlatitude": _latitude,
+          "centerlongitude": _longitude,
           "centeropentime": _openTime,
           "centerclosetime": _closeTime,
           "centerprice": _selectedPrice,
@@ -674,6 +685,4 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
       print(err);
     });
   }
-
-  
 }

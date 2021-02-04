@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,8 +21,9 @@ class AddSportCenterScreen extends StatefulWidget {
 }
 
 class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
-  double screenHeight, screenWidth;
+  double screenHeight, screenWidth, latitude, longitude;
   String _titleCenter = "Loading Sport Center...";
+  String _mapTitle = "Press to choose your location";
   File _image;
   String pathAsset = 'assets/images/camera.png';
   int titleCharLength = 50;
@@ -49,6 +54,23 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     "RM8.00"
   };
   var offDayList = {"No Off Day", "Public Holiday"};
+
+  String _mapTitleCenter = "Loading Map...";
+  String _homeloc = "";
+  String _latitude = "";
+  String _longitude = "";
+  Position _currentPosition;
+  Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController gmcontroller;
+  CameraPosition _home;
+  MarkerId markerId1 = MarkerId("12");
+  Set<Marker> markers = Set();
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,15 +149,17 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                         ),
                         onChanged: _onChangedDesc,
                       ),
-                      TextField(
-                        controller: _loccontroller,
-                        keyboardType: TextInputType.name,
-                        decoration: InputDecoration(
-                          labelText: 'Venue',
-                          icon: Icon(Icons.location_on_outlined),
-                        ),
-                        onChanged: _onChangedDesc,
-                      ),
+                      SizedBox(height: 20),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_on_outlined),
+                            SizedBox(width: 16),
+                            GestureDetector(
+                                onTap: _loadMapDialog,
+                                child: Text(_mapTitle,
+                                    style: TextStyle(fontSize: 16))),
+                          ]),
                       SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -363,6 +387,176 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     });
   }
 
+  void _loadMapDialog() {
+    _controller = null;
+    try {
+      if (_currentPosition.latitude == null) {
+        Toast.show("Current location not available. Please wait...", context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        _getLocation(); //_getCurrentLocation();
+        return;
+      }
+      _controller = Completer();
+      showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, newSetState) {
+              var alheight = MediaQuery.of(context).size.height;
+              var alwidth = MediaQuery.of(context).size.width;
+              return AlertDialog(
+                  //scrollable: true,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  title: Center(
+                    child: Text("Select New Delivery Location",
+                        style: TextStyle(color: Colors.black, fontSize: 14)),
+                  ),
+                  //titlePadding: EdgeInsets.all(5),
+                  //content: Text(_homeloc),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text(
+                          _homeloc,
+                          style: TextStyle(color: Colors.black, fontSize: 12),
+                        ),
+                        Container(
+                          height: alheight - 250,
+                          width: alwidth - 10,
+                          child: GoogleMap(
+                              mapType: MapType.normal,
+                              initialCameraPosition: CameraPosition(
+                                  target: LatLng(latitude, longitude),
+                                  zoom: 17),
+                              markers: markers.toSet(),
+                              onMapCreated: (controller) {
+                                _controller.complete(controller);
+                              },
+                              onTap: (newLatLng) {
+                                _loadLoc(newLatLng, newSetState);
+                              }),
+                        ),
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          //minWidth: 200,
+                          height: 30,
+                          child: Text('Close'),
+                          color: Colors.deepPurple,
+                          textColor: Colors.white,
+                          elevation: 10,
+                          onPressed: () => {
+                            markers.clear(),
+                            Navigator.of(context).pop(false),
+                          },
+                        ),
+                      ],
+                    ),
+                  ));
+            },
+          );
+        },
+      );
+    } catch (e) {
+      print(e);
+      return;
+    }
+  }
+
+  Future<void> _getLocation() async {
+    try {
+      final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+      geolocator
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+          .then((Position position) async {
+        _currentPosition = position;
+        if (_currentPosition != null) {
+          final coordinates = new Coordinates(
+              _currentPosition.latitude, _currentPosition.longitude);
+          var addresses =
+              await Geocoder.local.findAddressesFromCoordinates(coordinates);
+          setState(() {
+            var first = addresses.first;
+            _homeloc = first.addressLine;
+            if (_homeloc != null) {
+              latitude = _currentPosition.latitude;
+              longitude = _currentPosition.longitude;
+              markers.add(Marker(
+                markerId: markerId1,
+                position: LatLng(latitude, longitude),
+                infoWindow: InfoWindow(
+                  title: 'Location',
+                  snippet: 'Your Location',
+                ),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueViolet),
+              ));
+              return;
+            }
+          });
+        }
+      }).catchError((e) {
+        print(e);
+      });
+    } catch (exception) {
+      print(exception.toString());
+    }
+  }
+
+  void _loadLoc(LatLng loc, newSetState) {
+    newSetState(() {
+      print("insetstate");
+      markers.clear();
+      latitude = loc.latitude;
+      longitude = loc.longitude;
+      _getLocationfromlatlng(latitude, longitude, newSetState);
+      _home = CameraPosition(
+        target: loc,
+        zoom: 17,
+      );
+      markers.add(Marker(
+        markerId: markerId1,
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: 'New Location',
+          snippet: 'New Selected  Location',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+      ));
+    });
+    _newhomeLocation();
+  }
+
+  _getLocationfromlatlng(double lat, double lng, setState) async {
+    final Geolocator geolocator = Geolocator()
+      ..placemarkFromCoordinates(lat, lng);
+    _currentPosition = await geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    //debugPrint('location: ${_currentPosition.latitude}');
+    final coordinates = new Coordinates(lat, lng);
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var first = addresses.first;
+    setState(() {
+      _latitude = lat.toStringAsFixed(7);
+      _longitude = lng.toStringAsFixed(7);
+      _homeloc = first.addressLine;
+      if (_homeloc != null) {
+        latitude = lat;
+        longitude = lng;
+        return;
+      }
+    });
+  }
+
+  Future<void> _newhomeLocation() async {
+    gmcontroller = await _controller.future;
+    gmcontroller.animateCamera(CameraUpdate.newCameraPosition(_home));
+  }
+
   void _addNewCenterDialog() {
     showDialog(
         context: context,
@@ -480,4 +674,6 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
       print(err);
     });
   }
+
+  
 }

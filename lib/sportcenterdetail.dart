@@ -80,12 +80,19 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
                               text: widget.center.centerphone,
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ])),
-                Row(children: [
-                  Text("Location: ", style: TextStyle(fontSize: 17)),
-                ]),
-                Text(widget.center.centerlocation,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Location: "),
+                          TextSpan(
+                              text: widget.center.centerlocation,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
                 RichText(
                     textAlign: TextAlign.left,
                     text: TextSpan(
@@ -138,10 +145,19 @@ class _SportCenterDetailState extends State<SportCenterDetail> {
                               text: widget.center.centeroffday,
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ])),
-                Text("Remarks: ", style: TextStyle(fontSize: 17)),
-                Text(widget.center.centerremarks,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 17,
+                        ),
+                        children: [
+                          TextSpan(text: "Remarks: "),
+                          TextSpan(
+                              text: widget.center.centerremarks,
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ])),
               ])),
         )
       ]),

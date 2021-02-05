@@ -67,7 +67,7 @@ class _SportCenterScreenState extends State<SportCenterScreen> {
                   : Flexible(
                       child: GridView.count(
                       crossAxisCount: 1,
-                      childAspectRatio: (screenWidth / screenHeight) / 0.5,
+                      childAspectRatio: (screenWidth / screenHeight) / 0.6,
                       children: List.generate(centerList.length, (index) {
                         return Padding(
                             padding: EdgeInsets.all(1),
@@ -79,10 +79,25 @@ class _SportCenterScreenState extends State<SportCenterScreen> {
                                       onTap: () =>
                                           _loadSportCenterDetail(index),
                                       child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
+                                          RichText(
+                                              textAlign: TextAlign.left,
+                                              text: TextSpan(
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  children: [
+                                                    TextSpan(
+                                                        text: centerList[index]
+                                                            ['centername'])
+                                                  ])),
                                           Container(
-                                              height: screenHeight / 3.2,
-                                              width: screenWidth / 1.1,
+                                              height: screenHeight / 2.8,
+                                              width: screenWidth / 1.0,
                                               child: CachedNetworkImage(
                                                   imageUrl:
                                                       "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
@@ -95,13 +110,37 @@ class _SportCenterScreenState extends State<SportCenterScreen> {
                                                           Icons.broken_image,
                                                           size: screenWidth /
                                                               3))),
-                                          Text("Name: " +
-                                              centerList[index]['centername']),
-                                          Text("Phone number: " +
-                                              centerList[index]['centerphone']),
-                                          Text("Location: " +
-                                              centerList[index]
-                                                  ['centerlocation']),
+                                          RichText(
+                                              text: TextSpan(
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 17,
+                                                  ),
+                                                  children: [
+                                                TextSpan(
+                                                    text: "Phone number: "),
+                                                TextSpan(
+                                                    text: centerList[index]
+                                                        ['centerphone'],
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))
+                                              ])),
+                                          RichText(
+                                              text: TextSpan(
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 17,
+                                                  ),
+                                                  children: [
+                                                TextSpan(text: "Location: "),
+                                                TextSpan(
+                                                    text: centerList[index]
+                                                        ['centerlocation'],
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))
+                                              ])),
                                         ],
                                       )),
                                 )));
@@ -148,8 +187,6 @@ class _SportCenterScreenState extends State<SportCenterScreen> {
       centername: centerList[index]['centername'],
       centerphone: centerList[index]['centerphone'],
       centerlocation: centerList[index]['centerlocation'],
-      centerlatitude: centerList[index]['centerlatitude'],
-      centerlongitude: centerList[index]['centerlongitude'],
       centeropentime: centerList[index]['centeropentime'],
       centerclosetime: centerList[index]['centerclosetime'],
       centerprice: centerList[index]['centerprice'],

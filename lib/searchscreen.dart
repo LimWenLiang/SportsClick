@@ -14,6 +14,7 @@ class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   double screenHeight, screenWidth;
   final TextEditingController _searchcontroller = TextEditingController();
+  final ScrollController _homeController = ScrollController();
   TabController _tabcontroller;
 
   int _radioValue = 0;
@@ -69,15 +70,15 @@ class _SearchScreenState extends State<SearchScreen>
                         autofocus: false,
                         controller: _searchcontroller,
                         decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: new OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                const Radius.circular(5.0),
-                              ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(5.0),
                             ),
-                            prefixIcon: Icon(Icons.search),
-                            ),
+                          ),
+                          prefixIcon: Icon(Icons.search),
+                        ),
                       )),
                   SizedBox(width: 5),
                   Flexible(

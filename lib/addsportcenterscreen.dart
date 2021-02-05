@@ -10,7 +10,6 @@ import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'user.dart';
 import 'package:http/http.dart' as http;
-import 'package:date_format/date_format.dart';
 
 class AddSportCenterScreen extends StatefulWidget {
   final User user;
@@ -26,8 +25,7 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   String _mapTitle = "Press to choose your location";
   File _image;
   String pathAsset = 'assets/images/camera.png';
-  int titleCharLength = 50;
-  int descCharLength = 100;
+  bool image = false, location = false;
 
   String _name, _phone, _location, _remarks;
   final TextEditingController _nmcontroller = TextEditingController();
@@ -134,20 +132,20 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                       TextField(
                         controller: _nmcontroller,
                         keyboardType: TextInputType.name,
+                        maxLength: 50,
                         decoration: InputDecoration(
-                          labelText: 'Name',
-                          icon: Icon(Icons.location_city),
-                        ),
-                        onChanged: _onChangedTitle,
+                            labelText: 'Name',
+                            icon: Icon(Icons.location_city),
+                            hintText: 'Maximum of 50 characters'),
                       ),
                       TextField(
                         controller: _hpcontroller,
                         keyboardType: TextInputType.phone,
+                        maxLength: 15,
                         decoration: InputDecoration(
-                          labelText: 'Phone Number',
-                          icon: Icon(Icons.phone),
-                        ),
-                        onChanged: _onChangedDesc,
+                            labelText: 'Phone Number',
+                            icon: Icon(Icons.phone),
+                            hintText: 'Maximum of 15 characters'),
                       ),
                       SizedBox(height: 20),
                       Row(
@@ -245,11 +243,11 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                         maxLines: 5,
                         controller: _rmcontroller,
                         keyboardType: TextInputType.name,
+                        maxLength: 100,
                         decoration: InputDecoration(
-                          labelText: 'Remarks',
-                          icon: Icon(Icons.notes),
-                        ),
-                        onChanged: _onChangedDesc,
+                            labelText: 'Remarks',
+                            icon: Icon(Icons.notes),
+                            hintText: 'Maximum of 100 characters'),
                       ),
                       SizedBox(height: 10),
                       MaterialButton(
@@ -377,18 +375,6 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     }
   }
 
-  _onChangedTitle(String value) {
-    setState(() {
-      titleCharLength = 50 - value.length;
-    });
-  }
-
-  _onChangedDesc(String value) {
-    setState(() {
-      descCharLength = 100 - value.length;
-    });
-  }
-
   void _loadMapDialog() {
     _controller = null;
     try {
@@ -455,6 +441,7 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
                             setState(() {
                               _mapTitle = _homeloc;
                             }),
+                            location = true,
                             Navigator.of(context).pop(false),
                           },
                         ),
@@ -634,6 +621,14 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     }
   }
 
+  bool _validation(String name, String phone, String remarks) {
+    if (name.isEmpty || phone.isEmpty) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   void _onAddSportCenter() {
     _name = _nmcontroller.text;
     _phone = _hpcontroller.text;
@@ -643,46 +638,81 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
     _closeTime = _selectedCloseTime.format(context);
 
     final dateTime = DateTime.now();
-    String base64Image = base64Encode(_image.readAsBytesSync());
+    String base64Image = "";
+    try {
+      if (base64Encode(_image.readAsBytesSync()) != null) {
+        base64Image = base64Encode(_image.readAsBytesSync());
+        image = true;
+      } else {
+        image = false;
+      }
+    } catch (Exception) {
+      print(Exception);
+    }
     print(base64Image);
 
-    http.post(
-        "http://itprojectoverload.com/sportsclick/php/add_sportcenter.php",
-        body: {
-          "centername": _name,
-          "centerphone": _phone,
-          "centerlocation": _mapTitle,
-          "centerlatitude": _latitude,
-          "centerlongitude": _longitude,
-          "centeropentime": _openTime,
-          "centerclosetime": _closeTime,
-          "centerprice": _selectedPrice,
-          "centeroffday": _selectedOffDay,
-          "centerremarks": _remarks,
-          "centerimage":
-              widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
-          "useremail": widget.user.email,
-          "encoded_string": base64Image,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "success") {
+    if (_remarks.isEmpty) {
+      _remarks = "No Remarks";
+    }
+
+    if (_validation(_name, _phone, _remarks) && image && location) {
+      http.post(
+          "http://itprojectoverload.com/sportsclick/php/add_sportcenter.php",
+          body: {
+            "centername": _name,
+            "centerphone": _phone,
+            "centerlocation": _mapTitle,
+            "centerlatitude": _latitude,
+            "centerlongitude": _longitude,
+            "centeropentime": _openTime,
+            "centerclosetime": _closeTime,
+            "centerprice": _selectedPrice,
+            "centeroffday": _selectedOffDay,
+            "centerremarks": _remarks,
+            "centerimage":
+                widget.user.name + "-${dateTime.microsecondsSinceEpoch}",
+            "useremail": widget.user.email,
+            "encoded_string": base64Image,
+          }).then((res) {
+        print(res.body);
+        if (res.body == "success") {
+          Toast.show(
+            "Add Success",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+          Navigator.pop(context);
+        } else {
+          Toast.show(
+            "Add Failed",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.CENTER,
+          );
+        }
+      }).catchError((err) {
+        print(err);
+      });
+    } else {
+      if (_name.isEmpty ||
+          _phone.isEmpty ||
+          image == false ||
+          location == false) {
         Toast.show(
-          "Add Success",
+          "Incomplete Sport Center Details",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
-        Navigator.pop(context);
       } else {
         Toast.show(
-          "Add Failed",
+          "Invalid Sport Center Details",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
       }
-    }).catchError((err) {
-      print(err);
-    });
+    }
   }
 }

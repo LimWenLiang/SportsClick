@@ -33,8 +33,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
   void initState() {
     _titlecontroller = TextEditingController(text: widget.post.posttitle);
     _descriptioncontroller = TextEditingController(text: widget.post.postdesc);
-    _onChangedTitle(_titlecontroller.text);
-    _onChangedDesc(_descriptioncontroller.text);
     super.initState();
   }
 
@@ -85,9 +83,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                                   fit: BoxFit.cover,
                                 ),
                                 border: Border.all(
-                                  width: 2.0,
-                                  color: Colors.deepPurple
-                                ),
+                                    width: 2.0, color: Colors.deepPurple),
                                 borderRadius: BorderRadius.all(Radius.circular(
                                         5.0) //         <--- border radius here
                                     ),
@@ -101,43 +97,23 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         TextField(
                           controller: _titlecontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 50,
                           decoration: InputDecoration(
-                            labelText: 'New Title',
+                            labelText: 'Title',
                             icon: Icon(Icons.title),
                             hintText: 'Maximum of 50 characters',
                           ),
-                          onChanged: _onChangedTitle,
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "$titleCharLength character remaining",
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.deepPurple),
-                              ),
-                            ]),
                         TextField(
                           controller: _descriptioncontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 100,
                           decoration: InputDecoration(
-                            labelText: 'New Description',
+                            labelText: 'Description',
                             icon: Icon(Icons.description),
                             hintText: 'Maximum of 100 characters',
                           ),
-                          onChanged: _onChangedDesc,
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "$descCharLength character remaining",
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.deepPurple),
-                              ),
-                            ]),
                         SizedBox(height: 10),
                         MaterialButton(
                           shape: RoundedRectangleBorder(
@@ -152,18 +128,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         ),
                       ]))))),
         ]));
-  }
-
-  _onChangedTitle(String value) {
-    setState(() {
-      titleCharLength = 50 - value.length;
-    });
-  }
-
-  _onChangedDesc(String value) {
-    setState(() {
-      descCharLength = 100 - value.length;
-    });
   }
 
   _onPictureSelection() {
@@ -323,11 +287,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
     if (title.isEmpty || description.isEmpty) {
       return false;
     } else {
-      if (title.length > 50 || description.length > 100) {
-        return false;
-      } else {
-        return true;
-      }
+      return true;
     }
   }
 

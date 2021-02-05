@@ -279,11 +279,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (title.isEmpty || description.isEmpty) {
       return false;
     } else {
-      if (title.length > 50 || description.length > 100) {
-        return false;
-      } else {
-        return true;
-      }
+      return true;
     }
   }
 
@@ -339,14 +335,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
     } else {
       if (_title.isEmpty || _description.isEmpty || image == false) {
         Toast.show(
-          "Incomplete Title/Description",
+          "Incomplete Post Details",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,
         );
       } else {
         Toast.show(
-          "Invalid Title/Description",
+          "Invalid Post Details",
           context,
           duration: Toast.LENGTH_LONG,
           gravity: Toast.CENTER,

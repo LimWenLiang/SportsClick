@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'sportcenter.dart';
 import 'user.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -19,8 +23,9 @@ class EditSportCenterScreen extends StatefulWidget {
 }
 
 class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
-  double screenHeight, screenWidth;
+  double screenHeight, screenWidth, latitude, longitude;
   File _image;
+  bool image = false, location = false;
   TextEditingController _nmcontroller;
   TextEditingController _hpcontroller;
   TextEditingController _loccontroller;
@@ -33,7 +38,7 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
   String _selectedOffDay = "No Off Day";
   String _openTime, _closeTime;
 
-  String _name, _phone, _location, _remarks, _currentImage = "";
+  String _name, _phone, _location, _remarks, _currentImage = "", _mapTitle;
 
   var priceList = {
     "RM4.00",
@@ -48,12 +53,22 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
   };
   var offDayList = {"No Off Day", "Public Holiday"};
 
+  String _mapTitleCenter = "Loading Map...";
+  String _homeloc = "";
+  String _latitude = "";
+  String _longitude = "";
+  Position _currentPosition;
+  Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController gmcontroller;
+  CameraPosition _home;
+  MarkerId markerId1 = MarkerId("12");
+  Set<Marker> markers = Set();
+
   @override
   void initState() {
     _nmcontroller = TextEditingController(text: widget.sportCenter.centername);
     _hpcontroller = TextEditingController(text: widget.sportCenter.centerphone);
-    _loccontroller =
-        TextEditingController(text: widget.sportCenter.centerlocation);
+    _mapTitle = widget.sportCenter.centerlocation;
     _selectedOpenTime = TimeOfDay(
         hour: _hour(widget.sportCenter.centeropentime),
         minute: _minute(widget.sportCenter.centeropentime));
@@ -65,6 +80,7 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
     _selectedOffDay = widget.sportCenter.centeroffday;
     _rmcontroller =
         TextEditingController(text: widget.sportCenter.centerremarks);
+    _getLocation();
     super.initState();
   }
 
@@ -134,30 +150,33 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
                         TextField(
                           controller: _nmcontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 50,
                           decoration: InputDecoration(
-                            labelText: 'Name',
-                            icon: Icon(Icons.location_city),
-                          ),
-                          onChanged: _onChangedTitle,
+                              labelText: 'Name',
+                              icon: Icon(Icons.location_city),
+                              hintText: 'Maximum of 50 characters'),
                         ),
                         TextField(
                           controller: _hpcontroller,
                           keyboardType: TextInputType.phone,
+                          maxLength: 15,
                           decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            icon: Icon(Icons.phone),
-                          ),
-                          onChanged: _onChangedDesc,
+                              labelText: 'Phone Number',
+                              icon: Icon(Icons.phone),
+                              hintText: 'Maximum of 15 characters'),
                         ),
-                        TextField(
-                          controller: _loccontroller,
-                          keyboardType: TextInputType.name,
-                          decoration: InputDecoration(
-                            labelText: 'Venue',
-                            icon: Icon(Icons.location_on_outlined),
-                          ),
-                          onChanged: _onChangedDesc,
-                        ),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.location_on_outlined),
+                              SizedBox(width: 16),
+                              Flexible(
+                                child: GestureDetector(
+                                    onTap: _loadMapDialog,
+                                    child: Text(_mapTitle,
+                                        style: TextStyle(fontSize: 16))),
+                              )
+                            ]),
                         SizedBox(height: 20),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -244,11 +263,11 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
                           maxLines: 5,
                           controller: _rmcontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 100,
                           decoration: InputDecoration(
-                            labelText: 'Remarks',
-                            icon: Icon(Icons.notes),
-                          ),
-                          onChanged: _onChangedDesc,
+                              labelText: 'Remarks',
+                              icon: Icon(Icons.notes),
+                              hintText: 'Maximum of 100 characters'),
                         ),
                         SizedBox(height: 10),
                         MaterialButton(
@@ -375,9 +394,181 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
     }
   }
 
-  void _onChangedTitle(String value) {}
+  void _loadMapDialog() {
+    _controller = null;
+    try {
+      if (_currentPosition.latitude == null) {
+        Toast.show("Current location not available. Please wait...", context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        _getLocation(); //_getCurrentLocation();
+        return;
+      }
+      _controller = Completer();
+      showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, newSetState) {
+              var alheight = MediaQuery.of(context).size.height;
+              var alwidth = MediaQuery.of(context).size.width;
+              return AlertDialog(
+                  //scrollable: true,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  title: Center(
+                    child: Text("Select Your Location",
+                        style: TextStyle(color: Colors.black, fontSize: 14)),
+                  ),
+                  //titlePadding: EdgeInsets.all(5),
+                  //content: Text(_homeloc),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text(
+                          _homeloc,
+                          style: TextStyle(color: Colors.black, fontSize: 12),
+                        ),
+                        Container(
+                          height: alheight - 250,
+                          width: alwidth - 10,
+                          child: GoogleMap(
+                              mapType: MapType.normal,
+                              initialCameraPosition: CameraPosition(
+                                  target: LatLng(latitude, longitude),
+                                  zoom: 17),
+                              markers: markers.toSet(),
+                              onMapCreated: (controller) {
+                                _controller.complete(controller);
+                              },
+                              onTap: (newLatLng) {
+                                _loadLoc(newLatLng, newSetState);
+                              }),
+                        ),
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          //minWidth: 200,
+                          height: 30,
+                          child: Text('OK'),
+                          color: Colors.deepPurple,
+                          textColor: Colors.white,
+                          elevation: 10,
+                          onPressed: () => {
+                            markers.clear(),
+                            setState(() {
+                              _mapTitle = _homeloc;
+                            }),
+                            location = true,
+                            Navigator.of(context).pop(false),
+                          },
+                        ),
+                      ],
+                    ),
+                  ));
+            },
+          );
+        },
+      );
+    } catch (e) {
+      print(e);
+      return;
+    }
+  }
 
-  void _onChangedDesc(String value) {}
+  Future<void> _getLocation() async {
+    try {
+      final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+      geolocator
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+          .then((Position position) async {
+        _currentPosition = position;
+        if (_currentPosition != null) {
+          final coordinates = new Coordinates(
+              _currentPosition.latitude, _currentPosition.longitude);
+          var addresses =
+              await Geocoder.local.findAddressesFromCoordinates(coordinates);
+          setState(() {
+            _latitude = _currentPosition.latitude.toStringAsFixed(7);
+            _longitude = _currentPosition.longitude.toStringAsFixed(7);
+            var first = addresses.first;
+            _homeloc = first.addressLine;
+            if (_homeloc != null) {
+              latitude = _currentPosition.latitude;
+              longitude = _currentPosition.longitude;
+              markers.add(Marker(
+                markerId: markerId1,
+                position: LatLng(latitude, longitude),
+                infoWindow: InfoWindow(
+                  title: 'Location',
+                  snippet: 'Your Location',
+                ),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueViolet),
+              ));
+              return;
+            }
+          });
+        }
+      }).catchError((e) {
+        print(e);
+      });
+    } catch (exception) {
+      print(exception.toString());
+    }
+  }
+
+  void _loadLoc(LatLng loc, newSetState) {
+    newSetState(() {
+      print("insetstate");
+      markers.clear();
+      latitude = loc.latitude;
+      longitude = loc.longitude;
+      _getLocationfromlatlng(latitude, longitude, newSetState);
+      _home = CameraPosition(
+        target: loc,
+        zoom: 17,
+      );
+      markers.add(Marker(
+        markerId: markerId1,
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: 'New Location',
+          snippet: 'New Selected  Location',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+      ));
+    });
+    _newhomeLocation();
+  }
+
+  _getLocationfromlatlng(double lat, double lng, setState) async {
+    final Geolocator geolocator = Geolocator()
+      ..placemarkFromCoordinates(lat, lng);
+    _currentPosition = await geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    //debugPrint('location: ${_currentPosition.latitude}');
+    final coordinates = new Coordinates(lat, lng);
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var first = addresses.first;
+    setState(() {
+      _latitude = lat.toStringAsFixed(7);
+      _longitude = lng.toStringAsFixed(7);
+      _homeloc = first.addressLine;
+      if (_homeloc != null) {
+        latitude = lat;
+        longitude = lng;
+        return;
+      }
+    });
+  }
+
+  Future<void> _newhomeLocation() async {
+    gmcontroller = await _controller.future;
+    gmcontroller.animateCamera(CameraUpdate.newCameraPosition(_home));
+  }
 
   Future<void> _selectOpenTime() async {
     final TimeOfDay pickOpenTime = await showTimePicker(
@@ -481,7 +672,7 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
 
     _name = _nmcontroller.text;
     _phone = _hpcontroller.text;
-    _location = _loccontroller.text;
+    _location = _mapTitle;
     _remarks = _rmcontroller.text;
     _openTime = _selectedOpenTime.format(context);
     _closeTime = _selectedCloseTime.format(context);

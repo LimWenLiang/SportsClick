@@ -24,6 +24,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   String _title, _description;
   int titleCharLength = 50;
   int descCharLength = 100;
+  bool image = false;
 
   @override
   Widget build(BuildContext context) {
@@ -87,43 +88,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         TextField(
                           controller: _titlecontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 50,
                           decoration: InputDecoration(
-                            labelText: 'Title',
-                            icon: Icon(Icons.title),
-                            hintText: 'Maximum of 50 characters',
-                          ),
-                          onChanged: _onChangedTitle,
+                              labelText: 'Title',
+                              icon: Icon(Icons.title),
+                              hintText: 'Maximum of 50 characters'),
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "$titleCharLength character remaining",
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.deepPurple),
-                              ),
-                            ]),
                         TextField(
                           controller: _descriptioncontroller,
                           keyboardType: TextInputType.name,
+                          maxLength: 100,
                           decoration: InputDecoration(
-                            labelText: 'Description',
-                            icon: Icon(Icons.description),
-                            hintText: 'Maximum of 100 characters',
-                          ),
-                          onChanged: _onChangedDesc,
+                              labelText: 'Description',
+                              icon: Icon(Icons.description),
+                              hintText: 'Maximum of 100 characters'),
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "$descCharLength character remaining",
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.deepPurple),
-                              ),
-                            ]),
                         SizedBox(height: 10),
                         MaterialButton(
                           shape: RoundedRectangleBorder(
@@ -140,18 +119,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     ))),
               ))
         ]));
-  }
-
-  _onChangedTitle(String value) {
-    setState(() {
-      titleCharLength = 50 - value.length;
-    });
-  }
-
-  _onChangedDesc(String value) {
-    setState(() {
-      descCharLength = 100 - value.length;
-    });
   }
 
   _onPictureSelection() {
@@ -325,9 +292,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
     _description = _descriptioncontroller.text;
 
     final dateTime = DateTime.now();
-    String base64Image = base64Encode(_image.readAsBytesSync());
+    String base64Image = "";
+    try {
+      if (base64Encode(_image.readAsBytesSync()) != null) {
+        base64Image = base64Encode(_image.readAsBytesSync());
+        image = true;
+      } else {
+        image = false;
+      }
+    } catch (Exception) {
+      print(Exception);
+    }
+
     print(base64Image);
-    if (_validation(_title, _description)) {
+
+    if (_validation(_title, _description) && image) {
       http.post("http://itprojectoverload.com/sportsclick/php/add_post.php",
           body: {
             "posttitle": _title,
@@ -358,7 +337,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         print(err);
       });
     } else {
-      if (_title.isEmpty || _description.isEmpty) {
+      if (_title.isEmpty || _description.isEmpty || image == false) {
         Toast.show(
           "Incomplete Title/Description",
           context,

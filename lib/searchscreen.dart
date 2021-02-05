@@ -69,15 +69,15 @@ class _SearchScreenState extends State<SearchScreen>
                         autofocus: false,
                         controller: _searchcontroller,
                         decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: new OutlineInputBorder(
-                            borderRadius: const BorderRadius.all(
-                              const Radius.circular(5.0),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: new OutlineInputBorder(
+                              borderRadius: const BorderRadius.all(
+                                const Radius.circular(5.0),
+                              ),
                             ),
-                          ),
-                          prefixIcon: Icon(Icons.search),
-                        ),
+                            prefixIcon: Icon(Icons.search),
+                            ),
                       )),
                   SizedBox(width: 5),
                   Flexible(
@@ -292,25 +292,40 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   void _onItemTapped(int index) {
-    FocusScope.of(context).requestFocus(FocusNode());//hide keyboard after press
-    setState(() {
-      _selectedIndex = index;
-      switch (index) {
-        case 0:
-          _loadSearchPost(_searchcontroller.text);
-          break;
-        case 1:
-          _loadSearchSportCenter(_searchcontroller.text);
-          break;
-      }
-    });
+    if (_searchcontroller.text.isEmpty) {
+      Toast.show(
+        "Please enter post title or sport center name",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity: Toast.CENTER,
+      );
+    } else {
+      FocusScope.of(context)
+          .requestFocus(FocusNode()); //hide keyboard after press
+      setState(() {
+        _selectedIndex = index;
+        switch (index) {
+          case 0:
+            _loadSearchPost(_searchcontroller.text);
+            break;
+          case 1:
+            _loadSearchSportCenter(_searchcontroller.text);
+            break;
+        }
+      });
+    }
   }
 
-  void _onRefresh() {
+  Future<void> _onRefresh() async {
+    ProgressDialog pr = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: false);
+    pr.style(message: "Loading...");
+    await pr.show();
     FocusScope.of(context).requestFocus(FocusNode());
     _searchcontroller.clear();
     _loadSearchPost("");
     _loadSearchSportCenter("");
+    await pr.hide();
   }
 
   Future<void> _loadSearchPost(String posttitle) async {

@@ -52,85 +52,123 @@ class _UserSportCenterScreenState extends State<UserSportCenterScreen> {
             Colors.white60,
             Colors.white54
           ])),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <
-              Widget>[
-            centerList == null
-                ? Flexible(
-                    child: Container(
-                    child: Center(
-                      child: Text(_titleCenter,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                    ),
-                  ))
-                : Flexible(
-                    child: GridView.count(
-                    crossAxisCount: 1,
-                    childAspectRatio: (screenWidth / screenHeight) / 0.60,
-                    children: List.generate(centerList.length, (index) {
-                      return Padding(
-                        padding: EdgeInsets.all(1),
-                        child: Card(
-                            elevation: 0,
-                            color: Colors.transparent,
-                            child: Column(
-                              children: [
-                                Container(
-                                    height: screenHeight / 3.2,
-                                    width: screenWidth / 1.1,
-                                    child: CachedNetworkImage(
-                                        imageUrl:
-                                            "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            new CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            new Icon(Icons.broken_image,
-                                                size: screenWidth / 3))),
-                                Text(
-                                    "Name: " + centerList[index]['centername']),
-                                Text("Phone number: " +
-                                    centerList[index]['centerphone']),
-                                Text("Location: " +
-                                    centerList[index]['centerlocation']),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                centerList == null
+                    ? Flexible(
+                        child: Container(
+                        child: Center(
+                          child: Text(_titleCenter,
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                        ),
+                      ))
+                    : Flexible(
+                        child: GridView.count(
+                        crossAxisCount: 1,
+                        childAspectRatio: (screenWidth / screenHeight) / 0.70,
+                        children: List.generate(centerList.length, (index) {
+                          return Padding(
+                            padding: EdgeInsets.all(1),
+                            child: Card(
+                                elevation: 0,
+                                color: Colors.transparent,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    MaterialButton(
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(width: 1.5),
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                      minWidth: 130,
-                                      height: 40,
-                                      child: Text('Edit'),
-                                      elevation: 15,
-                                      onPressed: () =>
-                                          _editSportCenterScreen(index),
-                                    ),
-                                    SizedBox(width: 10),
-                                    MaterialButton(
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(width: 1.5),
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                      minWidth: 130,
-                                      height: 40,
-                                      child: Text('Delete'),
-                                      elevation: 15,
-                                      onPressed: () =>
-                                          _deleteSportCenterDialog(index),
-                                    ),
+                                    RichText(
+                                        textAlign: TextAlign.left,
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold),
+                                            children: [
+                                              TextSpan(
+                                                  text: centerList[index]
+                                                      ['centername'])
+                                            ])),
+                                    Container(
+                                        height: screenHeight / 2.8,
+                                        width: screenWidth / 1.0,
+                                        child: CachedNetworkImage(
+                                            imageUrl:
+                                                "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                new CircularProgressIndicator(),
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                new Icon(Icons.broken_image,
+                                                    size: screenWidth / 3))),
+                                    RichText(
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 17,
+                                            ),
+                                            children: [
+                                          TextSpan(text: "Phone number: "),
+                                          TextSpan(
+                                              text: centerList[index]
+                                                  ['centerphone'],
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold))
+                                        ])),
+                                    RichText(
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 17,
+                                            ),
+                                            children: [
+                                          TextSpan(text: "Location: "),
+                                          TextSpan(
+                                              text: centerList[index]
+                                                  ['centerlocation'],
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold))
+                                        ])),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        MaterialButton(
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                          ),
+                                          minWidth: 130,
+                                          height: 40,
+                                          child: Text('Edit'),
+                                          elevation: 15,
+                                          onPressed: () =>
+                                              _editSportCenterScreen(index),
+                                        ),
+                                        SizedBox(width: 10),
+                                        MaterialButton(
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                          ),
+                                          minWidth: 130,
+                                          height: 40,
+                                          child: Text('Delete'),
+                                          elevation: 15,
+                                          onPressed: () =>
+                                              _deleteSportCenterDialog(index),
+                                        ),
+                                      ],
+                                    )
                                   ],
-                                )
-                              ],
-                            )),
-                      );
-                    }),
-                  ))
-          ]),
+                                )),
+                          );
+                        }),
+                      ))
+              ]),
         ),
       ]),
     );

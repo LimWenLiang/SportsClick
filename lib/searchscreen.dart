@@ -243,43 +243,90 @@ class _SearchScreenState extends State<SearchScreen>
                       : Flexible(
                           child: GridView.count(
                           crossAxisCount: 1,
-                          childAspectRatio: (screenWidth / screenHeight) / 0.45,
+                          childAspectRatio: (screenWidth / screenHeight) / 0.6,
                           children: List.generate(centerList.length, (index) {
                             return Padding(
                                 padding: EdgeInsets.all(1),
                                 child: Card(
-                                  elevation: 0,
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                      onTap: () =>
-                                          _loadSportCenterDetail(index),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                              height: screenHeight / 3.2,
-                                              width: screenWidth / 1.1,
-                                              child: CachedNetworkImage(
-                                                  imageUrl:
-                                                      "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (context, url) =>
-                                                      new CircularProgressIndicator(),
-                                                  errorWidget: (context, url,
-                                                          error) =>
-                                                      new Icon(
-                                                          Icons.broken_image,
-                                                          size: screenWidth /
-                                                              3))),
-                                          Text("Name: " +
-                                              centerList[index]['centername']),
-                                          Text("Phone number: " +
-                                              centerList[index]['centerphone']),
-                                          Text("Location: " +
-                                              centerList[index]
-                                                  ['centerlocation']),
-                                        ],
-                                      )),
-                                ));
+                                    elevation: 0,
+                                    color: Colors.transparent,
+                                    child: SingleChildScrollView(
+                                      child: InkWell(
+                                          onTap: () =>
+                                              _loadSportCenterDetail(index),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              RichText(
+                                                  textAlign: TextAlign.left,
+                                                  text: TextSpan(
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 17,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      children: [
+                                                        TextSpan(
+                                                            text: centerList[
+                                                                    index]
+                                                                ['centername'])
+                                                      ])),
+                                              Container(
+                                                  height: screenHeight / 2.8,
+                                                  width: screenWidth / 1.0,
+                                                  child: CachedNetworkImage(
+                                                      imageUrl:
+                                                          "http://itprojectoverload.com/sportsclick/images/sportcenterimages/${centerList[index]['centerimage']}.jpg",
+                                                      fit: BoxFit.cover,
+                                                      placeholder: (context,
+                                                              url) =>
+                                                          new CircularProgressIndicator(),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          new Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size:
+                                                                  screenWidth /
+                                                                      3))),
+                                              RichText(
+                                                  text: TextSpan(
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 17,
+                                                      ),
+                                                      children: [
+                                                    TextSpan(
+                                                        text: "Phone number: "),
+                                                    TextSpan(
+                                                        text: centerList[index]
+                                                            ['centerphone'],
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ])),
+                                              RichText(
+                                                  text: TextSpan(
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 17,
+                                                      ),
+                                                      children: [
+                                                    TextSpan(
+                                                        text: "Location: "),
+                                                    TextSpan(
+                                                        text: centerList[index]
+                                                            ['centerlocation'],
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ])),
+                                            ],
+                                          )),
+                                    )));
                           }),
                         ))
                 ]),

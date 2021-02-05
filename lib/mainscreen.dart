@@ -21,12 +21,11 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   double screenHeight, screenWidth;
-  String _appBarName, _titlecenter = "Loading Post...";
+  String _appBarName;
   int _selectedIndex = 0;
   List<Widget> _widgetOptions;
   String username = "Loading Username";
   List userList, postList;
-  TextEditingController _posttitlecontroller = TextEditingController();
   String posttitle;
 
   @override

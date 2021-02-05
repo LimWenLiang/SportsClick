@@ -28,7 +28,6 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
   bool image = false, location = false;
   TextEditingController _nmcontroller;
   TextEditingController _hpcontroller;
-  TextEditingController _loccontroller;
   TextEditingController _rmcontroller;
 
   TimeOfDay _selectedOpenTime;
@@ -53,7 +52,6 @@ class _EditSportCenterScreenState extends State<EditSportCenterScreen> {
   };
   var offDayList = {"No Off Day", "Public Holiday"};
 
-  String _mapTitleCenter = "Loading Map...";
   String _homeloc = "";
   String _latitude = "";
   String _longitude = "";

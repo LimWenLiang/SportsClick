@@ -21,7 +21,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
   double screenHeight, screenWidth;
   File _image;
   List postList, userList;
-  String _titleCenter = "Loading Post...";
   String pathAsset = 'assets/images/camera.png';
   TextEditingController _titlecontroller;
   TextEditingController _descriptioncontroller;

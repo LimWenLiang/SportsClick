@@ -14,14 +14,9 @@ class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   double screenHeight, screenWidth;
   final TextEditingController _searchcontroller = TextEditingController();
-  final ScrollController _homeController = ScrollController();
-  TabController _tabcontroller;
 
-  int _radioValue = 0;
-  String _choice = "Post";
   List postList, centerList;
   String _titleCenter = "Loading...";
-  String _search = "";
   TabController _controller;
   int _selectedIndex = 0;
 

@@ -21,16 +21,14 @@ class AddSportCenterScreen extends StatefulWidget {
 
 class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   double screenHeight, screenWidth, latitude, longitude;
-  String _titleCenter = "Loading Sport Center...";
   String _mapTitle = "Press to choose your location";
   File _image;
   String pathAsset = 'assets/images/camera.png';
   bool image = false, location = false;
 
-  String _name, _phone, _location, _remarks;
+  String _name, _phone, _remarks;
   final TextEditingController _nmcontroller = TextEditingController();
   final TextEditingController _hpcontroller = TextEditingController();
-  final TextEditingController _loccontroller = TextEditingController();
   final TextEditingController _rmcontroller = TextEditingController();
 
   TimeOfDay _selectedOpenTime = TimeOfDay(hour: 09, minute: 00);
@@ -53,7 +51,6 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   };
   var offDayList = {"No Off Day", "Public Holiday"};
 
-  String _mapTitleCenter = "Loading Map...";
   String _homeloc = "";
   String _latitude = "";
   String _longitude = "";
@@ -632,7 +629,6 @@ class _AddSportCenterScreenState extends State<AddSportCenterScreen> {
   void _onAddSportCenter() {
     _name = _nmcontroller.text;
     _phone = _hpcontroller.text;
-    _location = _loccontroller.text;
     _remarks = _rmcontroller.text;
     _openTime = _selectedOpenTime.format(context);
     _closeTime = _selectedCloseTime.format(context);

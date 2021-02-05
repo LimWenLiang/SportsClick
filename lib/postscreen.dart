@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'loginscreen.dart';
 
 class PostScreen extends StatefulWidget {
   final String posttitle;
@@ -180,39 +179,4 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   _loadSportCenterDetail(int index) {}
-
-  void _askLogin(String email) {
-    if (email.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            // return object of type Dialog
-            return AlertDialog(
-              title: new Text(
-                "Please Login Account to continue.",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              actions: <Widget>[
-                // usually buttons at the bottom of the dialog
-                new FlatButton(
-                  child: new Text(
-                    "Login Account",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => LoginScreen()));
-                  },
-                ),
-              ],
-            );
-          });
-    }
-  }
 }

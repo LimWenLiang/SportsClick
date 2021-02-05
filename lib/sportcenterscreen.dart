@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sportsclick/sportcenter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'addsportcenterscreen.dart';
 import 'sportcenterdetail.dart';
-import 'user.dart';
 
 class SportCenterScreen extends StatefulWidget {
   final String email;
@@ -199,41 +197,5 @@ class _SportCenterScreenState extends State<SportCenterScreen> {
         MaterialPageRoute(
             builder: (BuildContext context) =>
                 SportCenterDetail(center: sportCenter)));
-  }
-
-  void _loadUser() {
-    http.post("http://itprojectoverload.com/sportsclick/php/load_user.php",
-        body: {
-          "email": widget.email,
-        }).then((res) {
-      print(res.body);
-      if (res.body == "nodata") {
-        setState(() {
-          username = "Guest";
-        });
-      } else {
-        setState(() {
-          var jsondata = json.decode(res.body);
-          userList = jsondata["user"];
-          username = userList[0]['name'];
-        });
-      }
-    }).catchError((err) {
-      print(err);
-    });
-  }
-
-  void _addCenterScreen() {
-    User user = new User(
-      name: userList[0]['name'],
-      email: userList[0]['email'],
-      phone: userList[0]['phone'],
-    );
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) =>
-                AddSportCenterScreen(user: user)));
   }
 }
